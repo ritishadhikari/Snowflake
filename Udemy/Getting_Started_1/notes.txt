@@ -1,0 +1,57 @@
+Snowflake Architecture:
+    - Storage:
+        - Hybrid Columnar storage
+        - Data is stored in Hybrid Columnar storage in Blobs S3, Az Blob Storage, etc
+    - Query Processing:
+        - Muscle of the system
+        - Performs MMP (Massive Parallel Processing)
+    - Cloud Services:
+        - Brain of the system
+        - Managing infrastructure, Access Control, Security, Optimizer, Metadata, etc
+
+Warehouse Sizes:
+    - XS : 1 Server
+    - S : 2 Server
+    - M : 4 Server
+    - L : 8 Server
+    - XL : 16 Server
+    - 4 XL : 128 Server
+
+Multi Clustering enables a smaler server to integrate with other smaller servers and function like
+a bigger server during time of need 
+
+Only Account Admin and Sys Admin roles can be used to create new Data Warehouses in Snowflake
+
+SQL Command to create a warehouse through SQL:
+'''
+CREATE OR REPLACE WAREHOUSE
+    second_warehouse
+WITH 
+    WAREHOUSE_SIZE=XSMALL
+    MIN_CLUSTER_COUNT=1
+    MAX_CLUSTER_COUNT=3
+    SCALING_POLICY="Economy"  -- Default is "Standard"
+    INITIALLY_SUSPENDED=TRUE
+    AUTO_SUSPEND=300
+    AUTO_RESUME=TRUE
+    COMMENT="This is our second warehouse";
+'''
+Ensure the role selected from the drop-down to be either Sysadmin or Accountadmin 
+
+SQL Command to Alter an already created warehouse through SQL
+'''
+ALTER WAREHOUSE second_warehouse RESUME;  -- the state will be resumed from auto suspended
+'''
+
+'''
+ALTER WAREHOUSE second_warehouse
+SET
+    WAREHOUSE_SIZE="SMALL";  -- alter the warehouse size
+'''
+
+SQL Command to drop an existing warehouse
+'''
+DROP WAREHOUSE second_warehouse;
+'''
+
+
