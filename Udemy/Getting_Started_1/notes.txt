@@ -54,4 +54,51 @@ SQL Command to drop an existing warehouse
 DROP WAREHOUSE second_warehouse;
 '''
 
+Standard scaling policy favours additional warehouses while economy scaling policy 
+favours conserving credits rather than starting additional warehouses
 
+After creating a new database, we needs to define privileges. Privileges contains roles
+and Privileges and describes for a certain role, which are the priviledges which are allowed
+like Create Schemas, etc.
+
+SQL command to create a table in a database and then add data to the table.
+```
+ALTER DATABASE 
+    FIRST_DB 
+RENAME TO
+    OUR_FIRST_DB;
+
+CREATE TABLE "OUR_FIRST_DB"."PUBLIC"."LOAN_PAYMENT" (
+    "Loan_ID" STRING,
+    "Loan_status" STRING,
+    "Principal" STRING,
+    "terms" STRING,
+    "effective date" STRING,
+    "due_date" STRING,
+    "paid_off_time" STRING,
+    "past_due_days" STRING,
+    "age" STRING, 
+    "education" STRING,
+    "gender" STRING
+);
+
+SELECT 
+    *
+FROM 
+    "OUR_FIRST_DB"."PUBLIC"."LOAN_PAYMENT";
+
+COPY INTO 
+    LOAN_PAYMENT
+FROM
+    s3://bucketsnowflakes3/Loan_payments_data.csv
+file_format=(
+    type=csv,
+    field_delimiter=",",
+    skip_header=1
+);
+
+SELECT 
+    *
+FROM 
+    "OUR_FIRST_DB"."PUBLIC"."LOAN_PAYMENT";
+```
