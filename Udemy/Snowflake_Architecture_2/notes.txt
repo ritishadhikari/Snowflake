@@ -1,0 +1,66 @@
+The different layers in a Datawarehouse is:
+    - Staging Area
+    - Data Transformation
+    - Access Layer
+
+Editions in Snowflake:
+    - Standard:
+        - Introductory Level
+        - Complete Datawarehouse
+        - Broad support for standard and special data types
+        - Time travel upto 1 day
+        - Disaster recovery for 7 days beyond time travel
+        - Network Policies
+        - Secure Data Share
+        - Federated Authentication & SSO
+        - Premiere Support 24/7 1
+    - Enterprise:
+        - Additional Features for the needs of large-scale enterprises
+        - Multi cluster warehouse
+        - Time travel upto 90 days
+        - Materialized Views
+        - Search Optimization   
+        - Column Level Security
+        - 24 hour early access to weekly new releases
+    - Business Critical:
+        - Even higher data protection for organizations with extremely sensitive data
+        - Additional security features such as customer-managed encryption and data specific 
+        regulation
+        - Database failover/failback
+    - Virtual Private:
+        - Highest level of Security
+        - Dedicated virtual servers and completely separate Snowflake environment
+        - Dedicated metadata store
+        - Isolated from all other snowflake accounts
+
+
+Pricing:
+    - Compute:
+        - Active Warehouses:
+            - Standard Query Processing
+            - Charged for active warehouses per hour
+            - Billed by the second
+            - Charged in Snowflake credits
+        - Cloud Services:
+            - Behind the scenes cloud service tasks
+        - Serverless:
+            - Search Optimization Snowpipe
+            - Automatically resized
+    - Storage:
+        - On demand Storage
+            - Pay only for what you use
+            - $40/ TB
+        - Capacity Storage
+            - Pay only for defined capacity upfront
+            - $23/TB
+    - Data Transfer:
+        - Data Ingress is free
+        - Data Egress is Charged
+        - Transfer or replicate data to different account (or cloud provider) 
+
+Resource Monitors:
+    - Controls and monitors credit usage of warehouses and account
+    - Set Credit Quota using Credit Quota
+    - Specify an action to perform when the quota is reached through Notify, Suspend and Notify
+    and Suspend Immediately
+    - Resource Monitors can be created by users with accountadmin roles
