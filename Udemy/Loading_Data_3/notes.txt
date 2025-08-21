@@ -1,0 +1,23 @@
+Loading Data:
+    - Bulk Loading
+    - Uses Warehouses
+    - Loading from stages
+    - COPY command
+    - Transformations possible
+
+Continuous Loading:
+    - Designed to load small volumes of data
+    - Latest results for analysis
+    - Uses Snowpipe (Serverless feature)
+
+Stages:
+    - Location of data files where data can be loaded from
+    - External Stage:
+        - External Cloud provider
+        - S3
+        - Google Cloud Platform
+        - Microsoft Azure
+        - Database Object created in Schema
+        - CREATE STAGE (URL, access settings)
+    - Internal Stage:
+        - Local storage maintained
