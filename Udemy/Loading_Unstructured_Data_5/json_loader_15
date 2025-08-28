@@ -1,0 +1,145 @@
+-- Load Raw JSON Data
+
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.jsonstage
+URL='s3://bucketsnowflake-jsondemo';
+
+LIST @manage_db.external_stages.jsonstage;
+
+CREATE OR REPLACE file format
+    manage_db.file_formats.jsonformat
+TYPE='json';
+
+-- To load a json file in a table, the file structure needs to be raw
+CREATE OR REPLACE table
+    our_first_db.public.json_raw(
+        raw_file VARIANT
+    );
+
+COPY INTO
+    our_first_db.public.json_raw
+FROM 
+    @manage_db.external_stages.jsonstage 
+FILE_FORMAT=(
+    format_name=manage_db.file_formats.jsonformat
+)
+FILES=  ('HR_data.json');
+
+
+SELECT
+    *
+FROM 
+    our_first_db.public.json_raw;
+
+-- Parsing & Analyse Raw Json
+SELECT
+    raw_file:city 
+FROM 
+    our_first_db.public.json_raw;
+
+-- Same as above
+SELECT
+    $1:city AS city
+FROM 
+    our_first_db.public.json_raw;
+
+    
+-- Selecting attributes/column - formatted
+SELECT
+    raw_file:city::STRING AS city,
+    raw_file:id::INT as id
+FROM 
+    our_first_db.public.json_raw;
+
+--  Handling nested data
+SELECT
+    raw_file:job AS job
+FROM 
+    our_first_db.public.json_raw;
+
+--  Handling and refining nested data
+SELECT
+    raw_file:first_name:STRING AS name,
+    raw_file:job.salary::INTEGER AS salary,
+    raw_file:job.title::STRING AS title
+FROM 
+    our_first_db.public.json_raw;
+
+SELECT 
+    raw_file:spoken_languages AS spoken_languages
+FROM 
+    our_first_db.public.json_raw;
+
+--  Provides the array size
+SELECT 
+    ARRAY_SIZE(raw_file:spoken_languages)::Integer AS num_spoken_languages
+FROM 
+    our_first_db.public.json_raw;
+
+SELECT 
+    CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+    ARRAY_SIZE(raw_file:spoken_languages)::Integer AS num_spoken_languages
+FROM 
+    our_first_db.public.json_raw;
+
+SELECT 
+    CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+    raw_file:spoken_languages[0]:language AS first_language,
+     raw_file:spoken_languages[0]:level AS first_language_level
+FROM 
+    our_first_db.public.json_raw;
+
+-- Flatten the Language and unionize the same
+-- VVI
+SELECT 
+    CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+    f.value:language::STRING AS language_spoken,
+    f.value:level::STRING AS language_level,
+FROM 
+    our_first_db.public.json_raw, TABLE(FLATTEN(raw_file:spoken_languages)) AS f;
+
+-- Create Table Option 1
+CREATE OR REPLACE TABLE 
+    our_first_db.public.language AS 
+    SELECT 
+        CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+        f.value:language::STRING AS language_spoken,
+        f.value:level::STRING AS language_level,
+    FROM 
+        our_first_db.public.json_raw, TABLE(FLATTEN(raw_file:spoken_languages)) AS f;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.language;
+
+    
+-- Create Table Option 2
+DROP TABLE 
+    our_first_db.public.language;
+
+CREATE OR REPLACE TABLE 
+    our_first_db.public.language 
+    (
+      full_name VARCHAR(30),
+      language_spoken VARCHAR(30),
+      language_level VARCHAR(30)
+    );
+
+INSERT INTO 
+    our_first_db.public.language
+SELECT 
+        CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+        f.value:language::STRING AS language_spoken,
+        f.value:level::STRING AS language_level,
+    FROM 
+        our_first_db.public.json_raw, TABLE(FLATTEN(raw_file:spoken_languages)) AS f;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.language
+LIMIT 
+    10;
+
+    

@@ -1,0 +1,64 @@
+-- Create file format;
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.parquet_format
+TYPE='parquet';
+
+-- Create stage object
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.parquetstage
+URL='s3://snowflakeparquetdemo'
+FILE_FORMAT=manage_db.file_formats.parquet_format;
+
+LIST @manage_db.external_stages.parquetstage;
+
+--  The older technique of loading it into a table through staging does not work in case of a parquet
+SELECT 
+    *
+FROM 
+    @manage_db.external_stages.parquetstage
+LIMIT 10;
+
+--  Adding Fields and Metadate
+SELECT 
+    $1:__index_level_0__::INT AS index_level,
+    $1:cat_id::VARCHAR(50) AS category,
+    DATE($1:date::INT) AS date,
+    $1:dept_id::VARCHAR(30) AS dept_id,
+    $1:id::VARCHAR(30) AS id,
+    $1:item_id::VARCHAR(50) AS item_id,
+    $1:state_id::VARCHAR(50) AS state_id,
+    $1:store_id::VARCHAR(50) AS store_id,
+    $1:value::INTEGER AS value,
+    METADATA$FILENAME AS file_name,
+    METADATA$FILE_ROW_NUMBER AS row_number,
+    TO_TIMESTAMP_NTZ(current_timestamp) AS load_date
+FROM 
+    @manage_db.external_stages.parquetstage
+LIMIT 
+    10;
+
+CREATE OR REPLACE TABLE 
+    our_first_db.public.parquet_date AS
+    SELECT 
+        $1:__index_level_0__::INT AS index_level,
+        $1:cat_id::VARCHAR(50) AS category,
+        DATE($1:date::INT) AS date,
+        $1:dept_id::VARCHAR(50) AS dept_id,
+        $1:id::VARCHAR(50) AS id,
+        $1:item_id::VARCHAR(50) AS item_id,
+        $1:state_id::VARCHAR(50) AS state_id,
+        $1:store_id::VARCHAR(50) AS store_id,
+        $1:value::INTEGER AS value,
+        METADATA$FILENAME AS file_name,
+        METADATA$FILE_ROW_NUMBER AS row_number,
+        TO_TIMESTAMP_NTZ(current_timestamp) AS load_date
+    FROM 
+        @manage_db.external_stages.parquetstage;
+    
+SELECT 
+    *
+FROM 
+    our_first_db.public.parquet_date
+LIMIT
+    10;
+
