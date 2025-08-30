@@ -1,0 +1,106 @@
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.aws_stage
+URL='s3://bucketsnowflakes3';
+
+
+LIST @manage_db.external_stages.aws_stage;
+
+CREATE OR REPLACE TABLE 
+    OUR_FIRST_DB.PUBLIC.ORDERS (
+        order_id VARCHAR(30),
+        amount INT,
+        profit INT, 
+        quantity INT,
+        category VARCHAR(30),
+        subcategory VARCHAR(30)
+    );
+
+COPY INTO
+    our_first_db.public.orders
+FROM @manage_db.external_stages.aws_stage
+FILE_FORMAT=(
+    type='csv',
+    field_delimiter=',',
+    skip_header=1
+),
+FILES=('OrderDetails.csv');
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.orders;
+
+-- Create Table
+CREATE OR REPLACE TABLE
+    our_first_db.public.orders_caching (
+    order_id VARCHAR(30),
+    amount NUMBER(38,0),
+    profit NUMBER(38,0),
+    quantity NUMBER (38,0),
+    category VARCHAR(30),
+    subcategory VARCHAR(30),
+    date DATE
+    );
+
+INSERT INTO 
+    our_first_db.public.orders_caching
+SELECT
+    t1.order_id,
+    t1.amount,
+    t1.profit,
+    t1.quantity,
+    t1.category,
+    t1.subcategory,
+    DATE(UNIFORM(1500000000,1700000000,(RANDOM())))
+FROM
+    our_first_db.public.orders AS t1
+CROSS JOIN
+    (
+        SELECT 
+            *
+        FROM 
+            our_first_db.public.orders
+    ) AS t2
+CROSS JOIN
+    (
+        SELECT 
+            TOP 100 *
+        FROM 
+            our_first_db.public.orders
+    ) AS t3;
+
+
+-- Query Performance before Cluster Key
+SELECT * FROM 
+    our_first_db.public.orders_caching
+WHERE 
+    date='2020-06-09';
+
+
+-- Adding Cluster Key and Compare the result
+ALTER TABLE 
+    our_first_db.public.orders_caching
+CLUSTER BY
+    (date);
+
+-- Query Performance after Cluster Key (Check after 30-60 mins)
+SELECT * FROM 
+    our_first_db.public.orders_caching
+WHERE 
+    date='2020-01-05';
+
+
+-- Not ideal clustering and adding a different cluster key using function
+SELECT
+    *
+FROM 
+    our_first_db.public.orders_caching
+WHERE 
+    MONTH(date)=12;
+
+
+-- Putting cluster on the Month
+ALTER TABLE 
+    our_first_db.public.orders_caching
+CLUSTER BY
+    (MONTH(DATE));

@@ -1,0 +1,16 @@
+SELECT
+    *
+FROM 
+    snowflake_sample_data.tpcds_sf100tcl.web_site AS t1
+CROSS JOIN
+    snowflake_sample_data.tpcds_sf100tcl.web_site AS t2
+CROSS JOIN 
+    snowflake_sample_data.tpcds_sf100tcl.web_site AS t3
+CROSS JOIN
+    (
+        SELECT 
+            top 57 *
+        FROM 
+            snowflake_sample_data.tpcds_sf100tcl.web_site 
+    ) AS T4;
+    

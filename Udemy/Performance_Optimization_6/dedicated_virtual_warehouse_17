@@ -1,0 +1,114 @@
+-- Create Virtual Warehouse for data scientist & DBA
+
+-- Data Scientist
+CREATE OR REPLACE WAREHOUSE 
+    ds_wh
+WITH
+    WAREHOUSE_SIZE='small'
+    WAREHOUSE_TYPE='standard'
+    AUTO_SUSPEND=300
+    AUTO_RESUME=TRUE
+    MIN_CLUSTER_COUNT=1
+    MAX_CLUSTER_COUNT=1
+    SCALING_POLICY='standard';
+
+-- DBA
+CREATE OR REPLACE WAREHOUSE
+    dba_wh
+WITH
+    WAREHOUSE_SIZE='xsmall'
+    WAREHOUSE_TYPE='standard'
+    AUTO_SUSPEND=300
+    AUTO_RESUME=TRUE
+    MIN_CLUSTER_COUNT=1
+    MAX_CLUSTER_COUNT=1
+    SCALING_POLICY='standard';
+
+-- Create role for Data Scientists & DBAs
+CREATE ROLE 
+    data_scientist;
+CREATE ROLE 
+    dba;
+
+-- Grant roles to the warehouse
+-- data scientist role to warehouse ds_wh
+GRANT USAGE ON WAREHOUSE
+    ds_wh
+TO ROLE
+    data_scientist;
+
+-- dba role to warehouse dba_wh
+GRANT USAGE ON WAREHOUSE
+    dba_wh
+TO ROLE
+    dba;
+
+-- Setting up users with roles
+-- Data Scientists
+
+CREATE USER 
+    ds1
+PASSWORD='ds1'
+LOGIN_NAME='ds1'
+DEFAULT_ROLE='data_scientist'
+DEFAULT_WAREHOUSE='ds_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+CREATE USER 
+    ds2
+PASSWORD='ds2'
+LOGIN_NAME='ds2'
+DEFAULT_ROLE='data_scientist'
+DEFAULT_WAREHOUSE='ds_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+CREATE USER 
+    ds3
+PASSWORD='ds3'
+LOGIN_NAME='ds3'
+DEFAULT_ROLE='data_scientist'
+DEFAULT_WAREHOUSE='ds_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+GRANT ROLE
+    data_scientist
+TO USER
+    ds1;
+
+GRANT ROLE
+    data_scientist
+TO USER
+    ds2;
+
+GRANT ROLE
+    data_scientist
+TO USER
+    ds3;
+
+-- DBAs
+
+CREATE USER 
+    dba1
+PASSWORD='dba1'
+LOGIN_NAME='dba1'
+DEFAULT_ROLE='dba'
+DEFAULT_WAREHOUSE='dba_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+CREATE USER 
+    dba2
+PASSWORD='dba2'
+LOGIN_NAME='dba2'
+DEFAULT_ROLE='dba'
+DEFAULT_WAREHOUSE='dba_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+GRANT ROLE
+    dba
+TO USER
+    dba1;
+
+GRANT ROLE 
+    dba
+TO USER 
+    dba2;

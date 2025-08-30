@@ -1,0 +1,13 @@
+-- Executing for the first time
+SELECT
+    AVG(c_birth_year)
+FROM 
+    snowflake_sample_data.tpcds_sf100TCL.customer;
+
+-- Executing for the second time, the same query will be faster, since it is now cached
+SELECT
+    AVG(c_birth_year)
+FROM 
+    snowflake_sample_data.tpcds_sf100TCL.customer;
+
+ 

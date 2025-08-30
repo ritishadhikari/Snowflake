@@ -1,0 +1,30 @@
+Dedicated Virtual Warehouse:
+    - Separated according to different workloads
+Scaling Up:
+    - For known patterns of high work load
+    - Increasing the size of Virtual warehouse
+    - More complex query
+Scaling Out:
+    - Dynamically for unknown patterns of work load
+    - Using addition warehouses/Multi-Cluster warehouse
+    - More Concurrent users/queries
+    - If we use atleast Enterprise edition all warehouses should be multicluster
+    - Minimum default should be 1
+    - Maximum can be very high
+Maximize Cache Usage:
+    - Automatic caching can be maximized
+    - Running the same query by a different user in the same warehouse would be cached and 
+    subsequent query executions will come from the cache
+Cluster Keys:
+    - They are subsets of rows to locate the data in micro-plans
+    - For large tables this improves the scan efficiency in our queries
+    - Snowflake automatically maintains these cluster Keys
+    - In general, Snowflake produces well-clustered tables
+    - Cluster keys are not always ideal and can change over time and hence we 
+    can manually customize these cluster keys
+    - Clustering is not for all tables and is mainly for very large tables of 
+    multiple terabytes can benefit
+    - We need to cluster on columns that are used most frequently in WHERE-clause 
+    (often date columns in event tables)
+    - If you use filters on two columns then the table can also benefit from two cluster 
+    keys

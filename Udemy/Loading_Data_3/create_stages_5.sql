@@ -55,12 +55,12 @@ FROM
 COPY INTO
     OUR_FIRST_DB.PUBLIC.ORDERS
 FROM @MANAGE_DB.external_stages.aws_stage
-    file_format=(
-        type='csv',
-        field_delimiter=',',
-        skip_header=1
-    ),
-    files=('OrderDetails.csv')
+FILE_FORMAT=(
+    type='csv',
+    field_delimiter=',',
+    skip_header=1
+),
+FILES=('OrderDetails.csv');
 
 --  There will be data now
 SELECT 

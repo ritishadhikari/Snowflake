@@ -1,0 +1,4 @@
+ALTER WAREHOUSE
+    compute_wh
+SET
+    WAREHOUSE_SIZE='small';
