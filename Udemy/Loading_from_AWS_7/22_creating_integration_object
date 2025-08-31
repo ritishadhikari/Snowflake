@@ -1,0 +1,17 @@
+-- Create Storage Integration Object
+
+CREATE OR REPLACE STORAGE INTEGRATION 
+    s3_int
+TYPE=EXTERNAL_STAGE
+STORAGE_PROVIDER=S3
+ENABLED=TRUE
+STORAGE_AWS_ROLE_ARN='arn:aws:iam::920411896737:role/snowflake-access-role'
+STORAGE_ALLOWED_LOCATIONS=(
+    's3://snowflakes3bucket0607/csv/',
+    's3://snowflakes3bucket0607/json/'
+    )
+COMMENT='This is an optional comment';
+
+-- Update STORAGE_AWS_IAM_USER_ARN and STORAGE_AWS_EXTERNAL_ID in the role policy that was created from this command
+DESC INTEGRATION s3_int;
+
