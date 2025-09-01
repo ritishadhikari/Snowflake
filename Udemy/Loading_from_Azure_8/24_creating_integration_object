@@ -1,0 +1,17 @@
+USE DATABASE 
+    our_first_db;
+
+CREATE OR REPLACE STORAGE INTEGRATION 
+    azure_integration
+TYPE=EXTERNAL_STAGE
+STORAGE_PROVIDER=AZURE
+ENABLED=TRUE
+AZURE_TENANT_ID='6a1d2f96-8cdf-4d1a-943d-7b73f4dfbb6d' -- will get it by searching tenant id under tenant properties in Azure
+STORAGE_ALLOWED_LOCATIONS=(
+    'azure://snowflakesa07.blob.core.windows.net/csv/',
+    'azure://snowflakesa07.blob.core.windows.net/json/'
+    )
+COMMENT='This is an optional comment';
+
+-- Update AZURE_CONSENT_URL and AZURE_MULTI_TENANT_APP_NAME in the member name that was created from this command
+DESC INTEGRATION azure_integration;
