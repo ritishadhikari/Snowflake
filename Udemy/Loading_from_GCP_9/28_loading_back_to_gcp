@@ -1,0 +1,29 @@
+USE ROLE 
+    ACCOUNTADMIN;
+
+USE DATABASE 
+    our_first_db;
+
+-- Create a Staging Object
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.csv_folder_gcp_unload
+STORAGE_INTEGRATION=gcp_integration
+URL='gcs://snowflakebucket0607/world-happiness-report-2021'
+FILE_FORMAT=manage_db.file_formats.fileformat_gcp_csv;
+
+LIST    
+    @manage_db.external_stages.csv_folder_gcp_unload;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.happiness
+LIMIT
+    10;
+
+-- Role reversal (Will be compressed into a GZIP format)
+COPY INTO 
+    @manage_db.external_stages.csv_folder_gcp_unload
+FROM 
+    our_first_db.public.happiness;
+    

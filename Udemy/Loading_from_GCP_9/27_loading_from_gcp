@@ -1,0 +1,79 @@
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.fileformat_gcp_csv
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1;
+
+-- Create Stage Object
+CREATE OR REPLACE STAGE     
+    manage_db.external_stages.csv_folder_gcp
+STORAGE_INTEGRATION=gcp_integration
+URL='gcs://snowflakebucket0607'
+FILE_FORMAT=manage_db.file_formats.fileformat_gcp_csv;
+
+LIST    
+    @manage_db.external_stages.csv_folder_gcp;
+
+SELECT 
+    $1, 
+    $2, 
+    $3, 
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19,
+    $20
+FROM 
+    @manage_db.external_stages.csv_folder_gcp
+LIMIT 10;
+
+
+CREATE OR REPLACE TABLE 
+    our_first_db.public.happiness (
+        country_name VARCHAR,
+        regional_indicator VARCHAR,
+        ladder_score NUMBER(4,3),  -- Total Number of digits, precision (decimal point)
+        standard_error NUMBER(4,3),
+        upperwhisker NUMBER(4,3),
+        lowerwhisker NUMBER(4,3),
+        logged_gdp NUMBER(5,3),
+        social_support NUMBER(4,3),
+        healthy_life_expectancy NUMBER(5,3),
+        freedom_to_make_life_choices NUMBER(4,3),
+        generosity NUMBER(4,3),
+        perceptions_of_corruption NUMBER(4,3),
+        ladder_score_in_dystopia NUMBER(4,3),
+        explained_by_log_gpd_per_capita NUMBER(4,3),
+        explained_by_social_support NUMBER(4,3),
+        explained_by_healthy_life_expectancy NUMBER(4,3),
+        explained_by_freedom_to_make_life_choices NUMBER(4,3),
+        explained_by_generosity NUMBER(4,3),
+        explained_by_perceptions_of_corruption NUMBER(4,3),
+        dystopia_residual NUMBER(4,3)
+        );
+
+COPY INTO 
+    our_first_db.public.happiness
+LIMIT
+    10;
+FROM 
+    @manage_db.external_stages.csv_folder_gcp;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.happiness
+LIMIT
+    10;
