@@ -1,0 +1,46 @@
+--  Handling Errors
+--  Create File Format Object
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_fileformat
+TYPE='csv'
+FIELD_DELIMITER='|'
+SKIP_HEADER=1,
+NULL_IF=('NULL','null') -- Replace NULL with Null in the dataset
+EMPTY_FIELD_AS_NULL=TRUE;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.employees
+LIMIT 
+    10;
+
+-- Altering the Pipe
+ALTER PIPE
+    manage_db.pipes.employee_pipe REFRESH;  -- PIPE is connected to the Stage which in turn is connected to the file format 
+
+-- Validate pipe is actually working
+SELECT
+    SYSTEM$PIPE_STATUS('manage_db.pipes.employee_pipe');
+
+-- Snowpipe error message
+-- Only give the output if some error message is identified
+SELECT
+    *
+FROM
+    TABLE(
+        VALIDATE_PIPE_LOAD(
+            PIPE_NAME=>'manage_db.pipes.employee_pipe',
+            START_TIME=>DATEADD(HOUR,-2,CURRENT_TIMESTAMP())
+        )
+    );
+
+SELECT
+    *
+FROM
+    TABLE(
+        INFORMATION_SCHEMA.COPY_HISTORY(
+            TABLE_NAME=>'our_first_db.public.employees',
+            START_TIME=>DATEADD(HOUR,-2,CURRENT_TIMESTAMP())
+        )
+    );

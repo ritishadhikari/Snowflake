@@ -1,0 +1,10 @@
+Features of snowpipes:
+    - Enables loading once a file appears in a bucket
+    - If data needs to be available immediately for analysis
+    - It uses serverless features instead of warehouses
+
+Setting up Snowpipe:
+    - Create stage (To have the connection)
+    - Test Copy Command (To make sure it works)
+    - Create Pipe (Create Pipe as Object with Copy Command)
+    - S3 Notification (To Trigger Snowpipe)

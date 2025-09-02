@@ -1,0 +1,40 @@
+-- Create Table first
+CREATE OR REPLACE TABLE
+    our_first_db.public.employees (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        location STRING,
+        department STRING
+    );
+
+-- Create file format object
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_fileformat
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1,
+NULL_IF=('NULL','null') -- Replace NULL with Null in the dataset
+EMPTY_FIELD_AS_NULL=TRUE; -- Replace empty data with Null in the dataset
+
+-- Altering the existing storage integration object to accomodate the snowpipe bucket
+ALTER STORAGE INTEGRATION 
+    s3_int
+SET
+    STORAGE_ALLOWED_LOCATIONS=(
+    's3://snowflakes3bucket0607/csv/',
+    's3://snowflakes3bucket0607/json/',
+    's3://snowflakes3bucket0607/snowpipe/'
+    );
+        
+        
+-- Create stage object with integration object and file format object
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.csv_folder
+URL='s3://snowflakes3bucket0607/snowpipe/'
+STORAGE_INTEGRATION=s3_int
+FILE_FORMAT=manage_db.file_formats.csv_fileformat;
+
+LIST 
+    @manage_db.external_stages.csv_folder;

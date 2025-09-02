@@ -1,0 +1,22 @@
+-- Create schema to keep things organized
+CREATE OR REPLACE SCHEMA
+    manage_db.pipes;
+
+-- Define Pipe
+CREATE OR REPLACE PIPE
+    manage_db.pipes.employee_pipe
+AUTO_INGEST=TRUE
+AS
+COPY INTO
+    our_first_db.public.employees
+FROM
+    @manage_db.external_stages.csv_folder;
+
+-- Describe Pipe
+DESC pipe 
+    employee_pipe;
+
+SELECT 
+    COUNT(*)
+FROM 
+    our_first_db.public.employees;
