@@ -1,46 +1,94 @@
---  Handling Errors
---  Create File Format Object
-CREATE OR REPLACE FILE FORMAT
-    manage_db.file_formats.csv_fileformat
-TYPE='csv'
-FIELD_DELIMITER='|'
-SKIP_HEADER=1,
-NULL_IF=('NULL','null') -- Replace NULL with Null in the dataset
-EMPTY_FIELD_AS_NULL=TRUE;
+DESC PIPE
+    manage_db.pipes.employee_pipe;
+    
+-- show list of existing pipes
+SHOW PIPES;
+
+-- Search Pipes using Regular Expression
+SHOW PIPES LIKE 
+    '%employee%';
+
+-- Search Pipes in a particular database
+SHOW PIPES IN DATABASE 
+    manage_db;
+
+-- Search Pipes in a particular database with a regular expression
+SHOW PIPES 
+LIKE 
+    '%employee%'
+IN DATABASE 
+    manage_db;
+
+CREATE OR REPLACE TABLE
+    our_first_db.public.employees2 (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        location STRING,
+        department STRING
+    );
 
 SELECT 
-    *
+    COUNT(*)
 FROM 
-    our_first_db.public.employees
-LIMIT 
-    10;
+    our_first_db.public.employees2;
+
+-- Pause Pipe
+ALTER PIPE
+    manage_db.pipes.employee_pipe
+SET 
+    PIPE_EXECUTION_PAUSED=TRUE;
+
+-- Verify Pipe is paused and has pending file count as 0
+SELECT
+    system$pipe_status('manage_db.pipes.employee_pipe');
+
+-- Recreate the Pipe to change the copy statement in the definition
+CREATE OR REPLACE PIPE
+    manage_db.pipes.employee_pipe
+AUTO_INGEST=TRUE
+AS
+COPY INTO
+    our_first_db.public.employees2
+FROM
+    @manage_db.external_stages.csv_folder;
 
 -- Altering the Pipe
 ALTER PIPE
-    manage_db.pipes.employee_pipe REFRESH;  -- PIPE is connected to the Stage which in turn is connected to the file format 
+    manage_db.pipes.employee_pipe REFRESH;
 
--- Validate pipe is actually working
-SELECT
-    SYSTEM$PIPE_STATUS('manage_db.pipes.employee_pipe');
+-- List files in Stage
+LIST 
+    @manage_db.external_stages.csv_folder;
+ 
+SELECT 
+    COUNT(*)
+FROM 
+    our_first_db.public.employees2;
+    
+-- -- copying existing data
+-- COPY INTO
+--     our_first_db.public.employees2
+-- FROM
+--     @manage_db.external_stages.csv_folder;
 
--- Snowpipe error message
--- Only give the output if some error message is identified
-SELECT
-    *
-FROM
-    TABLE(
-        VALIDATE_PIPE_LOAD(
-            PIPE_NAME=>'manage_db.pipes.employee_pipe',
-            START_TIME=>DATEADD(HOUR,-2,CURRENT_TIMESTAMP())
-        )
-    );
+-- SELECT 
+--     COUNT(*)
+-- FROM 
+--     our_first_db.public.employees2;
 
+-- Resume Pipe
+ALTER PIPE
+    manage_db.pipes.employee_pipe
+SET 
+    PIPE_EXECUTION_PAUSED=FALSE;
+
+-- Verify Pipe is running again
 SELECT
-    *
-FROM
-    TABLE(
-        INFORMATION_SCHEMA.COPY_HISTORY(
-            TABLE_NAME=>'our_first_db.public.employees',
-            START_TIME=>DATEADD(HOUR,-2,CURRENT_TIMESTAMP())
-        )
-    );
+    system$pipe_status('manage_db.pipes.employee_pipe');
+
+SELECT 
+    COUNT(*)
+FROM 
+    our_first_db.public.employees2;
