@@ -1,0 +1,97 @@
+-- query file
+SELECT
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19
+FROM 
+    @snowpipe.public.stage_azure;
+
+-- Create destination table
+CREATE OR REPLACE TABLE
+    snowpipe.public.happiness (
+        country_name VARCHAR,
+        regional_indicator VARCHAR,
+        ladder_score NUMBER(4,3),  -- Total Number of digits, precision (decimal point)
+        standard_error NUMBER(4,3),
+        upperwhisker NUMBER(4,3),
+        lowerwhisker NUMBER(4,3),
+        logged_gdp NUMBER(5,3),
+        social_support NUMBER(4,3),
+        healthy_life_expectancy NUMBER(5,3),
+        freedom_to_make_life_choices NUMBER(4,3),
+        generosity NUMBER(4,3),
+        perceptions_of_corruption NUMBER(4,3),
+        ladder_score_in_dystopia NUMBER(4,3),
+        explained_by_log_gpd_per_capita NUMBER(4,3),
+        explained_by_social_support NUMBER(4,3),
+        explained_by_healthy_life_expectancy NUMBER(4,3),
+        explained_by_freedom_to_make_life_choices NUMBER(4,3),
+        explained_by_generosity NUMBER(4,3),
+        explained_by_perceptions_of_corruption NUMBER(4,3),
+        dystopia_residual NUMBER(4,3)
+    );
+
+-- Initially there won't be any records
+SELECT 
+    *
+FROM 
+    snowpipe.public.happiness;
+
+-- Manually copy the content to the destination table from the staging
+COPY INTO 
+    snowpipe.public.happiness
+FROM 
+    @snowpipe.public.stage_azure;
+
+-- Records will be populated now
+SELECT 
+    *
+FROM 
+    snowpipe.public.happiness
+LIMIT
+    10;
+
+-- Remove the records for the Snowpipe to show its magic
+TRUNCATE TABLE
+    snowpipe.public.happiness;
+
+-- Create Pipe
+CREATE PIPE
+    azure_pipe
+AUTO_INGEST=TRUE
+INTEGRATION='SNOWPIPE_EVENT'  -- notification integratioN (will always be CAPITAL)
+AS
+COPY INTO 
+    snowpipe.public.happiness
+FROM 
+    @snowpipe.public.stage_azure;
+
+-- Records will once again be populated now through pipe
+SELECT 
+    *
+FROM 
+    snowpipe.public.happiness
+LIMIT
+    10;
+
+--  Check the status of the pipe
+SELECT 
+    system$pipe_status(
+    'AZURE_PIPE'
+    );

@@ -1,0 +1,53 @@
+CREATE OR REPLACE DATABASE 
+    SNOWPIPE;
+
+-- 6a1d2f96-8cdf-4d1a-943d-7b73f4dfbb6d
+-- https://snowpipesa.blob.core.windows.net/snowpipecsv
+-- Describe Integration Object to provide the access
+CREATE OR REPLACE STORAGE INTEGRATION
+    azure_snowpipe_integration
+TYPE=EXTERNAL_STAGE
+STORAGE_PROVIDER=AZURE
+ENABLED=TRUE
+AZURE_TENANT_ID='6a1d2f96-8cdf-4d1a-943d-7b73f4dfbb6d'
+STORAGE_ALLOWED_LOCATIONS=(
+    'azure://snowpipesa.blob.core.windows.net/snowpipecsv');
+
+-- Describe integration object to provide access
+DESC STORAGE INTEGRATION
+    azure_snowpipe_integration;
+
+-- Create File Format
+CREATE OR REPLACE FILE FORMAT
+    snowpipe.public.fileformat_azure
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1;
+
+-- Create Stage Object
+CREATE OR REPLACE STAGE     
+    snowpipe.public.stage_azure
+STORAGE_INTEGRATION=azure_snowpipe_integration
+URL='azure://snowpipesa.blob.core.windows.net/snowpipecsv'
+FILE_FORMAT=snowpipe.public.fileformat_azure;
+
+-- List Files
+LIST
+    @snowpipe.public.stage_azure;
+
+-- https://snowpipesa.queue.core.windows.net/snowpipequeue
+
+-- Create Notification Integration
+CREATE OR REPLACE NOTIFICATION INTEGRATION 
+    snowpipe_event
+ENABLED=TRUE
+TYPE=QUEUE
+NOTIFICATION_PROVIDER=AZURE_STORAGE_QUEUE
+AZURE_STORAGE_QUEUE_PRIMARY_URI='https://snowpipesa.queue.core.windows.net/snowpipequeue'
+AZURE_TENANT_ID='6a1d2f96-8cdf-4d1a-943d-7b73f4dfbb6d';
+
+-- Register Integration
+--  Open the AZURE_CONSENT_URL and add member for AZURE_MULTI_TENANT_APP_NAME
+DESCRIBE notification integration 
+    snowpipe_event;
+    
