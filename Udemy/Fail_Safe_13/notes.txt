@@ -1,0 +1,6 @@
+Fail Safe:
+    - Protection of historical data in case of disaster
+    - Non-Configurable 7-day period for permanent tables
+    - Period starts immediately after Time Travel period ends
+    - No user interaction & recoverable only by Snowflake
+    - Contributes to the storage costs

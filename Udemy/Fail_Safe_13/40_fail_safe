@@ -1,0 +1,37 @@
+-- Storage Usage on Account Level
+SELECT
+    *
+FROM 
+    snowflake.account_usage.storage_usage 
+ORDER BY
+    usage_date DESC;
+
+-- Storage usage on account level formatted
+SELECT
+    usage_date,
+    storage_bytes/(1024*1024*1024) AS  storage_gb,
+    stage_bytes/(1024*1024*1024) AS stage_gb,
+    failsafe_bytes/(1024*1024*1024) AS failsafe_gb
+FROM
+    snowflake.account_usage.storage_usage
+ORDER BY
+    usage_date DESC;
+
+-- Storage usage on table level formatted
+SELECT
+    *
+FROM 
+    snowflake.account_usage.table_storage_metrics;
+
+-- Storage usage on table level formatted
+SELECT
+    id,
+    table_name,
+    table_schema,
+    active_bytes/(1024*1024*1024) AS storage_used_gb,
+    time_travel_bytes/(1024*1024*1024) AS time_travel_storage_used_gb,
+    failsafe_bytes/(1024*1024*1024) AS failsafe_storage_used_gb
+FROM
+    snowflake.account_usage.table_storage_metrics
+ORDER BY
+    failsafe_storage_used_gb DESC;
