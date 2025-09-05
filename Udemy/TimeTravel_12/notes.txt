@@ -1,0 +1,11 @@
+Standard:
+    Upto 1 day
+
+Enterprise:
+    Upto 90 days
+
+Business Critical:
+    Upto 90 days
+
+Virtual Private:
+    Upto 90 days

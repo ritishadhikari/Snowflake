@@ -1,0 +1,28 @@
+--  It will have a retention time column (by default it is 1)
+SHOW TABLES LIKE
+    '%CUSTOMERS%';
+
+ALTER TABLE 
+    our_first_db.public.customers
+SET
+    DATA_RETENTION_TIME_IN_DAYS=2;
+
+--  Now retention It will have a retention time column
+SHOW TABLES LIKE
+    '%CUSTOMERS%';
+
+-- Set Retention time during table creation
+CREATE OR REPLACE TABLE
+     our_first_db.public.ret_example (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING, 
+        job STRING, 
+        phone STRING
+     )
+DATA_RETENTION_TIME_IN_DAYS=3; -- Don't accidentally set to 0, else we cannot recover it using time travel
+
+SHOW TABLES LIKE
+    '%ex%';

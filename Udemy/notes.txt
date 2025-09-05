@@ -1,0 +1,15 @@
+Data Protection Lifecycle:
+    - Current Data Storage
+    - If database or table is accidentally dropped
+    - If table is truncated or updated accidentally
+    
+Time travel enables accessing historical data:
+    - Query deleted or updated data
+    - Restore tables, schemas and databases that have been dropped
+    - Create clones of tables, schemas and databases from previous state
+
+Considerations:
+    - Undrop fails if an object with the same name already exists
+    - Ownership privileges are needed for an object to be restored
+
+

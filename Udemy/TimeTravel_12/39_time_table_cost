@@ -1,0 +1,27 @@
+SELECT 
+    *
+FROM 
+    snowflake.account_usage.storage_usage
+ORDER BY
+    usage_date ASC;
+
+-- Table will have their own id
+SELECT 
+    *
+FROM 
+    snowflake.account_usage.table_storage_metrics;
+
+-- Query time travel storage
+SELECT 
+    id,
+    table_name,
+    table_schema,
+    table_catalog,
+    active_bytes/(1024*1024*1024) AS storage_used_gb,
+    time_travel_bytes/(1024*1024*1024) AS time_travel_storage_used_gb
+FROM 
+    snowflake.account_usage.table_storage_metrics
+ORDER BY
+    storage_used_gb DESC,
+    time_travel_storage_used_gb DESC;
+    

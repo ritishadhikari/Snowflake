@@ -1,0 +1,172 @@
+CREATE OR REPLACE TABLE 
+    our_first_db.public.test (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+COPY INTO 
+    our_first_db.public.test
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 
+    10;
+
+-- Use-case: Update data (by mistake)
+
+-- query id: 01bed311-3201-e9ec-000f-66b20003dd0e
+UPDATE 
+    our_first_db.public.test
+SET 
+    last_name='Tyson';
+
+-- query id: 01bed312-3201-e9ec-000f-66b20003dd12
+UPDATE 
+    our_first_db.public.test
+SET 
+    job='Data Analyst';
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 
+    10;
+
+--  We are unaware that last_name has been updated and hence we are only looking to revert the change on data analyst only
+CREATE OR REPLACE TABLE
+    our_first_db.public.test AS
+        SELECT
+            *
+        FROM 
+            our_first_db.public.test
+        BEFORE (
+            STATEMENT=>'01bed312-3201-e9ec-000f-66b20003dd12'
+        );
+
+-- Major Problem since last name problem still exists         
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 
+    10;
+
+--  if we now try and rectify the problem with the original query id, then it will still throw an error
+CREATE OR REPLACE TABLE
+    our_first_db.public.test AS
+        SELECT
+            *
+        FROM 
+            our_first_db.public.test
+        BEFORE (
+            STATEMENT=>'01bed311-3201-e9ec-000f-66b20003dd0e'
+        );
+        
+-- Now let us focus on the good method
+
+CREATE OR REPLACE TABLE 
+    our_first_db.public.test (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+COPY INTO 
+    our_first_db.public.test
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+-- First Mistake
+-- query id: 01bed31d-3201-e9ec-000f-66b20003dd56
+UPDATE 
+    our_first_db.public.test
+SET 
+    last_name='Tyson';
+
+-- Second Mistake
+-- query id: 01bed31e-3201-e9ec-000f-66b20003dd5a
+UPDATE 
+    our_first_db.public.test
+SET 
+    job='Data Analyst';
+
+--  Use a backup table instead of dropping the main table
+CREATE OR REPLACE TABLE
+    our_first_db.public.test_backup
+AS
+    SELECT 
+        *
+    FROM 
+        our_first_db.public.test
+    BEFORE (
+        STATEMENT=>'01bed31e-3201-e9ec-000f-66b20003dd5a'
+    );
+
+-- Truncate but not drop the main table
+TRUNCATE
+    our_first_db.public.test;
+
+INSERT INTO 
+    our_first_db.public.test
+SELECT 
+    *
+FROM 
+    our_first_db.public.test_backup;
+
+--  The main table has the last problem fixed and also is eligible for further time travel since it was not dropped
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 
+    10;
+
+--  Repeating the above step again using backup for full fix
+CREATE OR REPLACE TABLE
+    our_first_db.public.test_backup
+AS
+    SELECT 
+        *
+    FROM 
+        our_first_db.public.test
+    BEFORE (
+        STATEMENT=>'01bed31d-3201-e9ec-000f-66b20003dd56'
+    );
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test_backup;
+
+-- Truncate but not drop the main table
+TRUNCATE
+    our_first_db.public.test;
+
+INSERT INTO 
+    our_first_db.public.test
+SELECT 
+    *
+FROM 
+    our_first_db.public.test_backup;
+
+-- Now we get the original contents in the table back
+SELECT 
+    *
+FROM 
+    our_first_db.public.test;

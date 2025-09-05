@@ -1,0 +1,150 @@
+CREATE OR REPLACE TABLE 
+    our_first_db.public.customers (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_file
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1;
+
+CREATE OR REPLACE STAGE 
+    manage_db.external_stages.time_travel_stage
+URL='s3://data-snowflake-fundamentals/time-travel/'
+FILE_FORMAT=manage_db.file_formats.csv_file;
+
+COPY INTO 
+    our_first_db.public.customers
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Mistakenly drop a table
+DROP TABLE 
+    our_first_db.public.customers;
+
+-- Table will not exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Recover the lost table
+UNDROP TABLE 
+    our_first_db.public.customers;
+
+-- Now Table will exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Time Table is also applicable in Snowflake schemas
+DROP SCHEMA
+    our_first_db.public;
+
+-- Table will not exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Recover the lost schema
+UNDROP SCHEMA 
+    our_first_db.public;
+
+-- Now Table will exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- -- Time Table is also applicable in Snowflake databases
+DROP DATABASE
+    our_first_db;
+
+-- Table will not exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Recover the lost database
+UNDROP DATABASE 
+    our_first_db;
+
+-- Now Table will exist
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Restore Replaced Table
+
+-- query id: 01bed344-3201-e9e5-000f-66b20003f88e
+UPDATE 
+    our_first_db.public.customers
+SET 
+    last_name='Tyson';
+
+-- query id: 01bed344-3201-e9e0-000f-66b20003c576
+UPDATE 
+    our_first_db.public.customers
+SET 
+    job='Data Analyst';
+
+-- Wrongly Updating the table with the latest mistake
+CREATE OR REPLACE TABLE
+    our_first_db.public.customers
+AS
+    SELECT 
+        *
+    FROM 
+        our_first_db.public.customers
+    BEFORE (
+        STATEMENT=>'01bed344-3201-e9e5-000f-66b20003f88e'
+    );
+
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- We cannot undrop the table because it is still there
+UNDROP TABLE
+    our_first_db.public.customers;
+
+--  So wayout is alter the customer table with the wrong name
+ALTER TABLE 
+    our_first_db.public.customers
+RENAME TO
+    our_first_db.public.customers_wrong;

@@ -1,0 +1,140 @@
+CREATE OR REPLACE TABLE 
+    our_first_db.public.test (
+        id INT,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_file
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1;
+
+CREATE OR REPLACE STAGE 
+    manage_db.external_stages.time_travel_stage
+URL='s3://data-snowflake-fundamentals/time-travel/'
+FILE_FORMAT=manage_db.file_formats.csv_file;
+
+LIST
+    @manage_db.external_stages.time_travel_stage;
+
+SELECT 
+    $1, -- id 
+    $2  -- first_name
+FROM 
+    @manage_db.external_stages.time_travel_stage
+LIMIT 10;
+
+COPY INTO 
+    our_first_db.public.test
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 
+    10;
+
+-- Usecase Update Data By Mistake
+UPDATE 
+    our_first_db.public.test
+SET 
+    first_name='Joyen'
+WHERE 
+    ID=1;
+
+-- Using Time Travel : Method 1 to 2 minutes back
+SELECT
+    *
+FROM 
+    our_first_db.public.test
+AT
+    (OFFSET => -60*105.5);  -- and then Bourke would arrive inplace of Joyen
+
+-- Using time travel: Method 2 - before timestamp
+ALTER SESSION SET 
+    TIMEZONE='UTC';
+    
+SELECT DATEADD(DAY,0,CURRENT_TIMESTAMP);
+
+-- 2025-09-04 07:07:09.238 +0000
+
+TRUNCATE TABLE
+    our_first_db.public.test;
+
+COPY INTO 
+    our_first_db.public.test
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 10;
+
+UPDATE 
+    our_first_db.public.test
+SET 
+    job='Data Scientist';
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+LIMIT 10;
+
+SELECT 
+    *
+FROM
+    our_first_db.public.test
+BEFORE 
+    (
+        timestamp=>'2025-09-04 07:07:09.238 +0000'::timestamp
+    )
+LIMIT 10;
+
+-- Using time travel: Method 2 - before query id
+TRUNCATE TABLE
+    our_first_db.public.test;
+
+COPY INTO 
+    our_first_db.public.test
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+
+-- query id: 01bed215-3201-e9e0-000f-66b20003c2c6
+SELECT 
+    *
+FROM
+    our_first_db.public.test
+LIMIT 10;
+
+UPDATE 
+    our_first_db.public.test
+SET 
+    email=null;
+
+SELECT 
+    *
+FROM
+    our_first_db.public.test
+LIMIT 10;
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.test
+BEFORE
+    (STATEMENT => '01bed215-3201-e9e0-000f-66b20003c2c6');
