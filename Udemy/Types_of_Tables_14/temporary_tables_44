@@ -1,0 +1,3 @@
+-- Here the same customers table's kind will be displayed as Table
+SHOW TABLES;
+

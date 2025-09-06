@@ -1,0 +1,37 @@
+Cloning a database or schema will clone all contained objects
+
+Zero-Copy Cloning can be done for the following:
+    - Database
+    - Schema
+    - Table
+    - Stream
+    - File Format
+    - Sequence
+    - Stage (Named Internal stages not cloned)
+    - Task
+    - Pipe (Only for external stages)
+
+- Cloning refers to taking snaphots of the object from the cloud service providers
+- Cloned object is independent from the original table
+- Easy to copy all meta data and improved storage management
+- Creating backups for development purposes
+- Typically combined with time travel
+- Cloning from specific point in time is possible
+
+When we clone a schema all the child object privileges will be inherited
+
+Privileges:
+    - Table:
+        - Select
+    - Pipe
+        - Owner
+    - Stream
+        - Owner
+    - Task
+        - Owner
+    - All other objects
+        - Usage
+
+Swapping:
+    - Development table into production table
+    - Involves only metadata operations

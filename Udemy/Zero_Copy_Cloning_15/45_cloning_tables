@@ -1,0 +1,101 @@
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 10;
+
+-- Cloning
+CREATE TABLE 
+    our_first_db.public.customers_clone
+CLONE
+    our_first_db.public.customers;
+
+-- Validate the table
+SELECT
+    *
+FROM
+    our_first_db.public.customers_clone
+LIMIT 
+    10;
+
+-- Update Cloned Table
+UPDATE 
+    our_first_db.public.customers_clone
+SET
+    last_name=NULL;
+
+SELECT
+    *
+FROM
+    our_first_db.public.customers_clone
+LIMIT 
+    10;
+
+--  The main table will not be changed
+SELECT
+    *
+FROM
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Cloning a temporary table is not possible to a permanent table
+-- temporary -!> permanent
+CREATE OR REPLACE TEMPORARY TABLE 
+    our_first_db.public.temp_table(
+        id INTEGER
+    );
+
+CREATE TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.temp_table;
+
+
+-- But Cloning a temporary table is possible to a transient table or a temporary table
+-- temporary -> transient
+CREATE OR REPLACE TEMPORARY TABLE 
+    our_first_db.public.temp_table(
+        id INTEGER
+    );
+
+CREATE TRANSIENT TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.temp_table;
+
+SELECT
+    *
+FROM 
+    our_first_db.public.table_copy;
+
+-- temporary -> temporary
+CREATE TEMPORARY TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.temp_table;
+
+SELECT
+    *
+FROM 
+    our_first_db.public.table_copy;
+
+-- Cloning a permanent table is possible into a permanent/temporary/transient table
+
+-- permanent -> permanent
+CREATE OR REPLACE TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.customers;
+
+-- permanent -> transient
+CREATE OR REPLACE TRANSIENT TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.customers;
+
+-- permanent -> temporary
+CREATE OR REPLACE TEMPORARY TABLE
+    our_first_db.public.table_copy
+CLONE   
+    our_first_db.public.customers;

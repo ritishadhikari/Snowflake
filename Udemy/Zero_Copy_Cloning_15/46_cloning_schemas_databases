@@ -1,0 +1,35 @@
+-- Cloning a Copied object for lower failsafe and time travel charges
+-- Cloning Schema (which would include all the tables inside of the schema)
+CREATE TRANSIENT SCHEMA 
+    our_first_db.copied_schema
+CLONE
+    our_first_db.public;
+
+SELECT 
+    *
+FROM 
+     our_first_db.copied_schema.customers
+LIMIT
+    10;
+
+-- Cloning Schema which contains stages
+CREATE TRANSIENT SCHEMA
+    our_first_db.external_stages_copied
+CLONE 
+    manage_db.external_stages;
+
+-- Cloning Database
+CREATE TRANSIENT DATABASE
+    our_first_db_copy
+CLONE
+    our_first_db;
+
+DROP DATABASE
+    our_first_db_copy;
+
+DROP SCHEMA 
+    our_first_db.external_stages_copied;
+
+DROP SCHEMA 
+    our_first_db.copied_schema;
+    

@@ -1,0 +1,50 @@
+USE 
+    our_first_db;
+
+-- Creating a Permanent table 
+CREATE OR REPLACE TABLE 
+    customers 
+        (
+            id INTEGER,
+            first_name STRING,
+            last_name STRING,
+            email STRING,
+            gender STRING,
+            job STRING,
+            phone STRING
+        );
+
+CREATE OR REPLACE PDB;
+
+-- focus on the is_current column, options (empty if vacant) 
+SHOW DATABASES;
+
+-- Focus on the kind column - table 
+SHOW TABLES;
+
+-- View Table metrics
+-- focus on the is_transient column
+SELECT
+    *
+FROM 
+    snowflake.account_usage.table_storage_metrics;
+
+SELECT 
+        id,
+        table_name,
+        table_schema,
+        table_catalog,
+        active_bytes/(1024*1024*1024) AS active_storage_used_gb,
+        time_travel_bytes/(1024*1024*1024) AS time_travel_storage_used_gb,
+        failsafe_bytes/(1024*1024*1024) AS failsafe_storage_used_gb,
+        is_transient,
+        deleted,
+        table_created,
+        table_dropped,
+        table_entered_failsafe
+FROM 
+    snowflake.account_usage.table_storage_metrics
+WHERE
+    table_dropped IS NOT NULL
+ORDER BY
+    failsafe_bytes DESC;

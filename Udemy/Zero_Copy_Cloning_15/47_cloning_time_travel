@@ -1,0 +1,86 @@
+-- Cloning with Time Travel
+-- Setting up the table
+
+CREATE OR REPLACE TABLE 
+    our_first_db.public.time_travel (
+        id INT,
+        first_name STRING, 
+        last_name STRING,
+        email STRING, 
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_file
+TYPE='csv'
+FIELD_DELIMITER=','
+SKIP_HEADER=1;
+
+CREATE OR REPLACE STAGE 
+    manage_db.external_stages.time_travel_stage
+URL='s3://data-snowflake-fundamentals/time-travel/'
+file_format=manage_db.file_formats.csv_file;
+
+LIST 
+    @manage_db.external_stages.time_travel_stage;
+
+COPY INTO
+    our_first_db.public.time_travel
+FROM 
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+
+SELECT 
+    *
+FROM    
+    our_first_db.public.time_travel
+LIMIT 
+    10;
+
+-- Update Data
+-- Query Id: 01bedd05-3201-e9eb-000f-66b200040d6a
+UPDATE 
+    our_first_db.public.time_travel
+SET 
+    first_name='Frank';
+
+-- Query Id: 01bedd05-3201-e9ec-000f-66b200044c16
+SELECT 
+    *
+FROM    
+    our_first_db.public.time_travel
+LIMIT 
+    10;
+
+-- Using time travel
+SELECT
+    *
+FROM 
+    our_first_db.public.time_travel
+BEFORE
+    (
+        STATEMENT => '01bedd05-3201-e9eb-000f-66b200040d6a'
+    );
+
+-- Clone using time travel
+CREATE OR REPLACE TABLE
+    our_first_db.public.time_travel_clone
+CLONE
+    our_first_db.public.time_travel
+BEFORE
+    (
+        STATEMENT => '01bedd05-3201-e9eb-000f-66b200040d6a'
+    );
+
+SELECT 
+    *
+FROM 
+    our_first_db.public.time_travel_clone;
+
+
+-- When a table is cloned, it is just another table (becomes new table altogather if modifications are made)
+-- Nothing to distinguish
+SHOW TABLES;

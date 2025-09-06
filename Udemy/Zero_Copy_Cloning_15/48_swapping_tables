@@ -1,0 +1,56 @@
+-- Swapping tables
+
+-- Setting up dead tables
+CREATE TRANSIENT SCHEMA 
+    our_first_db.copied_schema
+CLONE
+    our_first_db.public;
+
+SELECT
+    *
+FROM 
+    our_first_db.copied_schema.customers
+LIMIT 
+    10;
+
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;
+
+-- Mofifying Dev table
+DELETE FROM 
+    our_first_db.copied_schema.customers
+WHERE
+    ID<500;
+
+SELECT
+    *
+FROM 
+    our_first_db.copied_schema.customers
+LIMIT 
+    10;
+
+-- Swapping Tables
+ALTER TABLE
+    our_first_db.copied_schema.customers
+SWAP WITH 
+    our_first_db.public.customers;
+
+-- The deleted records will appear here since the records have been swapped with the main table now 
+SELECT
+    *
+FROM 
+    our_first_db.copied_schema.customers
+LIMIT 
+    10;
+
+--  Now the original table will have 500 deleted rows
+SELECT
+    *
+FROM 
+    our_first_db.public.customers
+LIMIT 
+    10;

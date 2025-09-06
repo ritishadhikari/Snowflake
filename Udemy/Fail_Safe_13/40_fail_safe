@@ -35,3 +35,5 @@ FROM
     snowflake.account_usage.table_storage_metrics
 ORDER BY
     failsafe_storage_used_gb DESC;
+
+    

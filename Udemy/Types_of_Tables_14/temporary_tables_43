@@ -1,0 +1,70 @@
+CREATE OR REPLACE DATABASE
+    pdb;
+
+USE DATABASE 
+    pdb;
+
+-- Creating permanent table
+CREATE OR REPLACE TABLE
+    pdb.public.customers (
+        id INTEGER,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+INSERT INTO
+    pdb.public.customers
+SELECT
+    t1.*
+FROM 
+    our_first_db.public.customers t1;
+
+SELECT 
+    t1.*
+FROM 
+    pdb.public.customers AS t1
+LIMIT 10;
+
+-- Create temporary table (with the same name)
+CREATE OR REPLACE TEMPORARY TABLE
+    pdb.public.customers (
+        id INTEGER,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING, 
+        job STRING, 
+        phone STRING
+    );
+
+-- The temporary table will be the active table in the session
+SELECT 
+    t1.*
+FROM 
+    pdb.public.customers t1
+LIMIT 10;
+
+-- Inserting data into the temporary table
+INSERT INTO
+    pdb.public.customers
+SELECT
+    t1.*
+FROM 
+    our_first_db.public.customers t1;
+
+SELECT 
+    t1.*
+FROM 
+    pdb.public.customers t1
+LIMIT 10;
+
+-- in the kind: temporary will appear for the customers table
+SHOW TABLES;
+
+-- Temporary Schema or databases cannot be created
+CREATE TEMPORARY SCHEMA temp;
+

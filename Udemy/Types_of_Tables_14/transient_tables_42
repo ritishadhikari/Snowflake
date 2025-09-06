@@ -1,0 +1,121 @@
+COPY INTO 
+    our_first_db.public.customers
+FROM    
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+CREATE OR REPLACE DATABASE
+    tdb;
+
+-- Creating a Transient table 
+CREATE OR REPLACE TRANSIENT TABLE 
+    tdb.public.customers_transient
+        (
+            id INTEGER,
+            first_name STRING,
+            last_name STRING,
+            email STRING,
+            gender STRING,
+            job STRING,
+            phone STRING
+        );
+
+INSERT INTO 
+    tdb.public.customers_transient
+SELECT 
+    t1.*
+FROM 
+    our_first_db.public.customers t1
+CROSS JOIN
+(
+    SELECT 
+        *
+    FROM 
+        our_first_db.public.customers
+) AS t2;
+
+SELECT
+    *
+FROM 
+    tdb.public.customers_transient
+LIMIT 
+    10;
+
+-- kind column will be transient
+SHOW TABLES;
+
+
+-- View Table metrics
+-- focus on the is_transient column
+SELECT
+    *
+FROM 
+    snowflake.account_usage.table_storage_metrics;
+
+SELECT 
+        id,
+        table_name,
+        table_schema,
+        table_catalog,
+        active_bytes/(1024*1024*1024) AS active_storage_used_gb,
+        time_travel_bytes/(1024*1024*1024) AS time_travel_storage_used_gb,
+        failsafe_bytes/(1024*1024*1024) AS failsafe_storage_used_gb,
+        is_transient,
+        deleted,
+        table_created,
+        table_dropped,
+        table_entered_failsafe
+FROM 
+    snowflake.account_usage.table_storage_metrics
+WHERE
+    table_catalog ='TDB'  -- Explore the table only from this database
+ORDER BY
+    failsafe_bytes DESC;
+
+-- Max Data Retention time for transient table is 1
+ALTER TABLE 
+    tdb.public.customers_transient
+SET 
+    data_retention_time_in_days=1;
+
+-- Creating transient schema and table
+CREATE OR REPLACE TRANSIENT SCHEMA
+    transient_schema;
+
+-- Transient or not will appear in the options column
+SHOW SCHEMAS;
+
+-- By default any table created inside of a transient schema is a transient table
+CREATE OR REPLACE TABLE
+    tdb.transient_schema.new_table(
+        id INTEGER,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+SHOW TABLES;
+
+
+-- Schemas and tables under a transient database is always transient
+CREATE TRANSIENT DATABASE
+    temp;
+CREATE SCHEMA 
+    tempschema;
+
+CREATE OR REPLACE TABLE
+    new_table (
+        id INTEGER,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING, 
+        job STRING, 
+        phone STRING
+    );
+
+SHOW SCHEMAS;  -- schemas under this database will be transient
+SHOW TABLES;  -- tables under this database will also be transient

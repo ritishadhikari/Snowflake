@@ -1,0 +1,19 @@
+Types of tables in Snowflake:
+    - Permanent Tables:
+        - Create Table
+        - Time Travel Retention period
+        - Fail Safe
+        - Exists until it is dropped
+    - Transient Table:
+        - Create Transient Table
+        - Time Travel Retention period
+        - No Fail Safe
+        - Exists until it is dropped
+    - Temporary
+        - Create Temporary Table
+        - Time Travel Retention period
+        - No Fail Safe
+        - Only exists in the current session
+        - Exists until it is dropped
+
+Also applicable for temporary schemas
