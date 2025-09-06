@@ -1,0 +1,48 @@
+-- the codes are used in the reader share account
+
+SHOW SHARES;
+
+-- See details on share
+DESCRIBE SHARE 
+    EMARRQL.BQ52262.orders_share;
+
+-- Create a database in consumer account using the share
+CREATE DATABASE
+    data_share_db
+FROM SHARE
+    emarrql.bq52262.orders_share;
+
+-- Setup Virtual Warehouse
+CREATE WAREHOUSE
+    read_wh
+WITH 
+    WAREHOUSE_SIZE='x-small'
+    AUTO_SUSPEND=180
+    AUTO_RESUME=TRUE
+    INITIALLY_SUSPENDED=TRUE;
+
+-- Validate table access
+-- Choose a warehouse first to run this from the child account
+SELECT
+    *
+FROM 
+    data_share_db.public.orders;
+
+-- Create and set up users
+-- Create user
+CREATE USER 
+    myriam
+PASSWORD='difficult_password=123';
+
+-- Grant usage on warehouse publically
+-- Which is there with the account_admin as of now
+GRANT USAGE ON WAREHOUSE
+    read_wh
+TO ROLE
+    public;
+
+-- Granting privileges on a shared database for other users
+GRANT IMPORTED PRIVILEGES ON DATABASE
+    data_share_db
+TO ROLE
+    public;

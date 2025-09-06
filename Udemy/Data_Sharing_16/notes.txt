@@ -1,0 +1,11 @@
+Data sharing is a metadata operations and we use the cloud layer for referencing the data without 
+copying the Data
+
+What can be shared:
+    - Tables
+    - External Tables
+    - Secure Views
+    - Secure materialized Views
+    - Secure UDFs
+
+As a best practice, when we want to share data, it is recommended to use secure views

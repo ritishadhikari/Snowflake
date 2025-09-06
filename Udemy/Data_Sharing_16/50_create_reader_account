@@ -1,0 +1,21 @@
+-- Create Reader Account
+CREATE MANAGED ACCOUNT
+    ritish_joy_account
+ADMIN_NAME=ritish_joy_admin
+ADMIN_PASSWORD='5843FgfdGr!@#$%'
+TYPE=READER;
+/*
+{"accountName":"RITISH_JOY_ACCOUNT","accountLocator":"HG19912","url":"https://emarrql-ritish_joy_account.snowflakecomputing.com","accountLocatorUrl":"https://hg19912.ap-southeast-1.snowflakecomputing.com"}
+*/
+
+-- Show accounts
+-- Get the account_locator from the column: account_locator
+SHOW MANAGED ACCOUNTS;
+
+-- Add consumer account
+ALTER SHARE
+    orders_share
+ADD 
+    ACCOUNT=HG19912;
+
+SHOW SHARES;
