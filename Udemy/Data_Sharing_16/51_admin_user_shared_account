@@ -1,0 +1,122 @@
+SHOW SHARES;
+
+-- See details on share
+DESCRIBE SHARE 
+    EMARRQL.BQ52262.orders_share;
+
+-- Create a database in consumer account using the share
+CREATE DATABASE
+    data_share_db
+FROM SHARE
+    emarrql.bq52262.orders_share;
+
+-- Setup Virtual Warehouse
+CREATE WAREHOUSE
+    read_wh
+WITH 
+    WAREHOUSE_SIZE='x-small'
+    AUTO_SUSPEND=180
+    AUTO_RESUME=TRUE
+    INITIALLY_SUSPENDED=TRUE;
+
+-- Validate table access
+-- Choose a warehouse first to run this from the child account
+SELECT
+    *
+FROM 
+    data_share_db.public.orders;
+
+-- Create and set up users
+-- Create user
+CREATE USER 
+    myriam
+PASSWORD='difficult_password=123';
+
+-- Grant usage on warehouse publically
+-- Which is there with the account_admin as of now
+GRANT USAGE ON WAREHOUSE
+    read_wh
+TO ROLE
+    public;
+
+-- Granting privileges on a shared database for other users
+GRANT IMPORTED PRIVILEGES ON DATABASE
+    data_share_db
+TO ROLE
+    public;
+
+
+-- Part for all table share
+SHOW SHARES;
+
+-- See details on share
+DESCRIBE SHARE 
+    EMARRQL.BQ52262.complete_schema_share;
+
+-- Create a database in consumer account using the share
+CREATE DATABASE
+    our_first_db_share
+FROM SHARE
+    emarrql.bq52262.complete_schema_share;
+
+-- Validate table access
+SELECT 
+    *
+FROM
+    our_first_db_share.public.orders
+LIMIT 
+    10;
+
+-- After the changes in the table in the parent account, there will be no more negative values in profit
+SELECT 
+    *
+FROM
+    our_first_db_share.public.orders;
+
+-- Newly created table will not be populated, get table does not exist error
+SELECT 
+    *
+FROM
+    our_first_db_share.public.new_table;
+
+SHOW VIEWS
+LIKE
+    '%CUSTOMERS%';
+
+-- Part for View Share
+
+SHOW SHARES;
+
+DESCRIBE SHARE 
+    EMARRQL.BQ52262.view_share;
+
+-- Create a database in consumer account using the share
+CREATE DATABASE
+    our_view_db
+FROM SHARE
+    emarrql.bq52262.view_share;
+
+-- Validate table access
+SELECT 
+    *
+FROM 
+    our_view_db.public.secure_customer_view;
+
+
+-- Part for View Share from multiple databases
+SHOW SHARES;
+
+DESCRIBE SHARE 
+    EMARRQL.BQ52262.view_share;
+
+-- Create a database in consumer account using the share
+CREATE DATABASE
+    view_db
+FROM SHARE
+    emarrql.bq52262.view_share;
+
+-- Validate table access
+SELECT 
+    *
+FROM 
+    view_db.public.secure_view_m;

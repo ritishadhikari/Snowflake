@@ -1,0 +1,9 @@
+SELECT 
+    *
+FROM 
+    DATA_SHARE_DB.PUBLIC.ORDERS;
+
+
+SHOW VIEWS
+LIKE
+    '%customer%';

@@ -9,3 +9,4 @@ What can be shared:
     - Secure UDFs
 
 As a best practice, when we want to share data, it is recommended to use secure views
+

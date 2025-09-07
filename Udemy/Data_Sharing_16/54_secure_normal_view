@@ -1,0 +1,108 @@
+-- Create Database and Table
+CREATE OR REPLACE DATABASE
+    customer_db;
+
+CREATE OR REPLACE TABLE
+    customer_db.public.customers 
+    (
+        id INTEGER,
+        first_name STRING,
+        last_name STRING,
+        email STRING,
+        gender STRING,
+        job STRING,
+        phone STRING
+    );
+
+-- Stage and file format
+CREATE OR REPLACE FILE FORMAT
+    manage_db.file_formats.csv_file
+TYPE='csv'
+FIELD_DELIMITER=','
+skip_header=1;
+
+CREATE OR REPLACE STAGE
+    manage_db.external_stages.time_travel_stage
+URL='s3://data-snowflake-fundamentals/time-travel/'
+FILE_FORMAT=manage_db.file_formats.csv_file;
+
+LIST 
+    @manage_db.external_stages.time_travel_stage;
+
+-- Copy Data and insert into table
+COPY INTO 
+    customer_db.public.customers
+FROM 
+    @manage_db.external_stages.time_travel_stage
+FILES=('customers.csv');
+
+SELECT 
+    *
+FROM 
+    customer_db.public.customers
+LIMIT 
+    10;
+
+-- Create a normal View
+CREATE OR REPLACE VIEW
+    customer_db.public.customer_view
+AS
+    SELECT
+        first_name,
+        last_name,
+        email
+    FROM 
+        customer_db.public.customers
+    WHERE
+        job!='DATA SCIENTIST';
+
+-- Grant usage and Select
+GRANT USAGE ON DATABASE
+    customer_db
+TO ROLE
+    public;
+
+GRANT USAGE ON SCHEMA
+    customer_db.public
+TO ROLE
+    public;
+
+GRANT SELECT ON TABLE
+    customer_db.public.customers
+TO ROLE
+    public;
+
+GRANT SELECT ON VIEW
+    customer_db.public.customer_view
+TO ROLE
+    public;
+
+-- is_secure column will be false
+-- text will contain the view definition which is not secure
+SHOW VIEWS
+LIKE
+    '%customer%';
+
+-- Create a Secure View
+CREATE OR REPLACE SECURE VIEW
+    customer_db.public.secure_customer_view
+AS
+    SELECT
+        first_name,
+        last_name,
+        email
+    FROM 
+        customer_db.public.customers
+    WHERE
+        job!='DATA SCIENTIST';
+
+GRANT SELECT ON VIEW
+    customer_db.public.secure_customer_view
+TO ROLE
+    PUBLIC;
+
+-- is_secure column will be true
+-- text will not contain the view definition which not secure
+SHOW VIEWS
+LIKE
+    '%customer%';

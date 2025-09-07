@@ -1,0 +1,47 @@
+SHOW SHARES;
+
+-- Create a new share
+CREATE OR REPLACE SHARE
+    complete_schema_share;
+
+-- Grant usage on database and schema
+GRANT USAGE ON DATABASE 
+    our_first_db
+TO SHARE
+        complete_schema_share;
+
+GRANT USAGE ON SCHEMA 
+    our_first_db.public
+TO SHARE
+        complete_schema_share;
+
+-- Grant Select on all tables
+GRANT SELECT ON ALL TABLES IN SCHEMA
+    our_first_db.public
+TO SHARE
+    complete_schema_share;
+
+GRANT SELECT ON ALL TABLES IN DATABASE
+    our_first_db
+TO SHARE
+    complete_schema_share;
+
+-- Add Account to Share
+ALTER SHARE
+    complete_schema_share
+ADD ACCOUNT=HG19912
+
+
+-- After configuring in the sharing account, update the table
+UPDATE 
+    our_first_db.public.orders
+SET
+    profit=0
+WHERE 
+    profit<0;
+
+-- Add a new table
+CREATE TABLE
+    our_first_db.public.new_table(
+        ID INT
+    );

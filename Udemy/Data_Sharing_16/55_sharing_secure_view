@@ -1,0 +1,51 @@
+-- Show shares
+SHOW SHARES;
+
+-- Create share object
+CREATE OR REPLACE SHARE
+    view_share;
+
+-- Grant Usage on Database and Schema
+GRANT USAGE ON DATABASE
+    customer_db 
+TO SHARE
+    view_share;
+
+GRANT USAGE ON SCHEMA
+    customer_db.public
+TO SHARE
+    view_share;
+
+-- Grant Select on view
+
+-- Non-secure object can only be granted to shares with "secure_objects_only" property set to false. Hence will not work
+GRANT SELECT ON VIEW
+    customer_db.public.customer_view
+TO SHARE
+    view_share;
+
+
+
+-- This will hoewever work since this is a secure view
+GRANT SELECT ON VIEW
+    customer_db.public.secure_customer_view
+TO SHARE
+    view_share;
+
+-- Once we allow non-secure objects to be shared
+ALTER SHARE 
+    view_share
+SET
+    secure_objects_only=FALSE;
+
+-- We can then share the object
+GRANT SELECT ON VIEW
+    customer_db.public.customer_view
+TO SHARE
+    view_share;
+
+ALTER SHARE
+    view_share
+ADD ACCOUNT=HG19912;
+
+

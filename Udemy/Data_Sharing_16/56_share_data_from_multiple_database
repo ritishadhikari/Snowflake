@@ -1,0 +1,47 @@
+CREATE OR REPLACE SECURE VIEW
+    secure_view_m AS
+    SELECT
+        t1.id,
+        t1.first_name,
+        t2.job
+    FROM
+        customer_db.public.customers t1
+    INNER JOIN 
+        our_first_db.public.customers t2
+    ON 
+        t1.id=t2.id;
+
+    SELECT 
+        *
+    FROM 
+        secure_view_m;
+
+-- Create share object
+CREATE OR REPLACE SHARE
+    view_share;
+
+-- Grant Usage on Database and Schema
+GRANT USAGE ON DATABASE
+    customer_db 
+TO SHARE
+    view_share;
+
+GRANT REFERENCE_USAGE ON DATABASE
+    our_first_db 
+TO SHARE
+    view_share;  -- required because the view we have created has reference to the our_first_db database as well
+    
+GRANT USAGE ON SCHEMA
+    customer_db.public
+TO SHARE
+    view_share;
+
+-- Grant Select on View
+GRANT SELECT ON VIEW
+    customer_db.public.secure_view_m 
+TO SHARE
+    view_share;
+
+ALTER SHARE
+    view_share
+ADD ACCOUNT=HG19912;
