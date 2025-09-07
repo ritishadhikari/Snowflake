@@ -1,0 +1,9 @@
+Data Sampling Methods:
+    - Row or Bernouli method
+        - Every row is chosen with percentage p
+        - More randomness
+        - Useful for smaller tables
+    - Block or System method
+        - Every block is chosen with percentage p
+        - More effective processing
+        - Useful for larger tables
