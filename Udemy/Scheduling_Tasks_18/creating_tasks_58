@@ -1,0 +1,69 @@
+CREATE OR REPLACE TRANSIENT DATABASE
+    task_db;
+
+-- Prepare table
+CREATE OR REPLACE TABLE task_db.public.customers (
+    customer_id INT AUTOINCREMENT START=1 INCREMENT=1,
+    first_name VARCHAR(40) default 'Jennifer',
+    create_date DATE  
+);
+
+-- Create task
+CREATE OR REPLACE TASK 
+    customer_insert
+WAREHOUSE='COMPUTE_WH'
+SCHEDULE='1 MINUTE'
+AS
+    INSERT INTO
+        task_db.public.customers(
+            CREATE_DATE
+        )
+    VALUES(
+        CURRENT_TIMESTAMP
+    );
+
+-- Initially the state column will be suspended
+SHOW TASKS;
+
+-- Task starting 
+ALTER TASK
+    customer_insert
+RESUME;
+
+-- Now the state column will be started
+SHOW TASKS;
+
+-- Task suspending
+ALTER TASK
+    customer_insert
+SUSPEND;
+
+-- Now the state column will be suspended again
+SHOW TASKS;
+
+SELECT 
+    *
+FROM 
+    task_db.public.customers;
+
+-- Using Cron
+CREATE OR REPLACE TASK
+    customer_insert
+WAREHOUSE='compute_wh'
+SCHEDULE='using cron 0 7,10 * * 5L UTC'  -- schedule at 7 am and 10 am  on each Fridays
+AS
+    INSERT INTO
+        customers(create_date)
+    VALUES
+        (
+            CURRENT_TIMESTAMP
+        );
+
+------ minute(0-59)
+| ---- hour(0,23)
+|| --- day of month (1-31, or L)
+||| -- month (1-12, JAN-DEC)
+|||| - day of week (0-6, SUN-SAT or L)
+|||||
+|||||
+*******

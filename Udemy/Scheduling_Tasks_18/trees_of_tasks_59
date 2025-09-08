@@ -1,0 +1,126 @@
+USE
+    task_db;
+
+show tasks;
+
+SELECT 
+    *
+FROM 
+    task_db.public.customers;
+
+--  Prepare a second table
+CREATE OR REPLACE TABLE
+    customers2 (
+        customer_id INTEGER,
+        first_name VARCHAR(40) default 'Jennifer',
+        create_date DATE  
+    );
+
+-- Suspend parent task
+-- Before modifying anything in the tree of tasks, the root task needs to be suspended else child task cannot be created
+
+ALTER TASK
+    customer_insert
+SUSPEND;
+
+-- Create a Child Task
+CREATE OR REPLACE TASK
+    customer_insert_2
+WAREHOUSE=compute_wh
+AFTER
+    customer_insert
+AS
+    INSERT INTO 
+        task_db.public.customers2
+    SELECT 
+        *
+    FROM 
+        task_db.public.customers;
+
+-- Prepare a third table
+CREATE OR REPLACE TABLE
+    customers3 (
+        customer_id INTEGER,
+        first_name VARCHAR(40) default 'Jennifer',
+        create_date DATE ,
+        insert_date DATE DEFAULT DATE(CURRENT_TIMESTAMP)
+    );
+
+-- Create a third Child Task
+CREATE OR REPLACE TASK
+    customer_insert_3
+WAREHOUSE=compute_wh
+AFTER
+    customer_insert_2
+AS
+    INSERT INTO 
+        task_db.public.customers3(
+            customer_id,
+            first_name,
+            create_date
+        )
+    SELECT 
+        *
+    FROM 
+        task_db.public.customers2;
+
+SHOW TASKS;
+
+ALTER TASK
+    task_db.public.customer_insert
+SET
+    SCHEDULE='1 minute';
+
+-- Resume tasks (first resume child tasks)
+ALTER TASK
+    task_db.public.customer_insert_3
+RESUME;
+
+ALTER TASK
+    task_db.public.customer_insert_2
+RESUME;
+
+ALTER TASK
+    task_db.public.customer_insert
+RESUME;
+
+-- Now all tasks will be resumed
+SHOW TASKS;
+
+-- Recursively resumes a specified task and all its dependent tasks
+SELECT 
+    SYSTEM$TASK_DEPENDENTS_ENABLE('customer_insert');
+
+SELECT 
+    *
+FROM 
+    task_db.public.customers2;
+
+SELECT 
+    *
+FROM 
+    task_db.public.customers3;
+
+-- Suspend Tasks again (Suspend Root Tasks first)
+ALTER TASK
+    customer_insert
+SUSPEND;
+
+ALTER TASK
+    customer_insert_2
+SUSPEND;
+
+ALTER TASK
+    customer_insert_3
+SUSPEND;
+
+SHOW TASKS;
+
+DROP TASK
+    customer_insert;
+
+DROP TASK
+    customer_insert_2;
+
+DROP TASK
+    customer_insert_3;

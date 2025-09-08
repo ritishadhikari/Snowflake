@@ -1,0 +1,6 @@
+A task is a simple SQL function that will be executed at a specific time
+
+It can be a standalone task or trees of tasks
+
+Tree of Tasks:
+    - 

@@ -1,0 +1,78 @@
+USE 
+    task_db;
+
+SELECT 
+    *
+FROM 
+    CUSTOMERS;
+
+
+-- CREATE OR REPLACE PROCEDURE
+--     customers_insert_procedure(
+--         CREATE_DATE VARCHAR
+--     )
+-- RETURNS  
+--     STRING NOT NULL
+-- LANGUAGE    
+--     JAVASCRIPT
+-- AS
+--     $$
+--     var sql_command='
+--         INSERT INTO CUSTOMERS(
+--             create_date
+--         )
+--         VALUES(:1);
+--         '
+--     snowflake.execute(
+--         {
+--             sqlText:sql_command,
+--             binds:[CREATE_DATE]
+--         }
+--         )
+--     return 'Successfully Executed.';
+--     $$;
+
+SHOW PROCEDURES;
+
+
+CREATE OR REPLACE PROCEDURE CUSTOMERS_INSERT_PROCEDURE (CREATE_DATE varchar)
+    RETURNS STRING NOT NULL
+    LANGUAGE JAVASCRIPT
+    AS
+        $$
+        var sql_command = 'INSERT INTO CUSTOMERS(CREATE_DATE) VALUES(:1);'
+        snowflake.execute(
+            {
+            sqlText: sql_command,
+            binds: [CREATE_DATE]
+            });
+        return "Successfully executed.";
+        $$;
+        
+
+CREATE OR REPLACE TASK 
+    customer_tasks_procedure
+WAREHOUSE=compute_wh
+SCHEDULE='1 MINUTE'
+AS
+    CALL customers_insert_procedure(
+        CURRENT_TIMESTAMP
+    );
+
+
+
+SHOW TASKS;
+
+ALTER TASK 
+    customer_tasks_procedure
+RESUME;
+
+-- Every minute one record will get added
+SELECT 
+    COUNT(*)
+FROM 
+    customers;
+
+ALTER TASK 
+    customer_tasks_procedure
+SUSPEND;

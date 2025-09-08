@@ -1,0 +1,47 @@
+SHOW TASKS;
+
+SELECT
+    *
+FROM
+    TABLE(SNOWFLAKE.ACCOUNT_USAGE.TASK_HISTORY())
+ORDER BY
+    SCHEDULED_TIME DESC;
+
+--  See results for a specific task in a given time
+SELECT 
+    *
+FROM 
+    TABLE(
+        information.shema.task_history(
+            scheduled_time_range_start=>dateadd('hour',-4,current_timestamp()),
+            result_limit=>5,
+            task_name='customer_insert_2'
+        )
+    );
+
+--  See results for the a specified task
+SELECT 
+    *
+FROM 
+    TABLE(
+        information.shema.task_history(
+            scheduled_time_range_start=>dateadd('hour',-4,current_timestamp()),
+            result_limit=>5,
+            task_name='customer_task_procedure'
+        )
+    );
+
+-- See results for a given time period
+SELECT 
+    *
+FROM 
+    TABLE(
+        information.shema.task_history(
+            scheduled_time_range_start=>to_timestamp_ltz('2025-09-08 02:02:36.522 -0700'),
+            scheduled_time_range_end=>to_timestamp_ltz('2025-09-07 02:02:36.522 -0700')
+           
+        )
+    );
+
+SELECT 
+    TO_TIMESTAMP_LTZ(CURRENT_TIMESTAMP);

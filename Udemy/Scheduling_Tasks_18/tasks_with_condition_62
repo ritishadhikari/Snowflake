@@ -1,0 +1,81 @@
+USE 
+    task_db;
+
+-- Prepare a table
+CREATE OR REPLACE TABLE
+    customers(
+        customer_id INT AUTOINCREMENT START=1 INCREMENT=1,
+        first_name VARCHAR(40) default 'Jennifer',
+        create_date DATE 
+    );
+
+-- Create task 1
+CREATE OR REPLACE TASK
+    customer_insert
+WAREHOUSE='compute_wh'
+SCHEDULE='1 MINUTE'
+WHEN 
+    1=2
+AS
+    INSERT INTO task_db.public.customers(
+        create_date,
+        first_name
+    )
+    VALUES(
+        CURRENT_TIMESTAMP,
+        'Mike'
+    );
+
+
+SHOW TASKS;
+
+-- Create task 2
+CREATE OR REPLACE TASK
+    customer_insert_2
+WAREHOUSE='compute_wh'
+SCHEDULE='1 MINUTE'
+WHEN 
+    1=1
+AS
+    INSERT INTO task_db.public.customers(
+        create_date,
+        first_name
+    )
+    VALUES(
+        CURRENT_TIMESTAMP,
+        'Debika'
+    );
+
+SHOW TASKS;
+
+-- Start both the tasks
+ALTER TASK
+    customer_insert
+RESUME;
+
+ALTER TASK
+    customer_insert_2
+RESUME;
+
+SHOW TASKS;
+
+SELECT 
+    *
+FROM 
+    CUSTOMERS;
+
+-- For the task:CUSTOMER_INSERT the column error_message would return: 'Conditional expression for task evaluated to false.'
+SELECT 
+    *
+FROM 
+    TABLE(information_schema.task_history())
+ORDER BY
+    scheduled_time 
+DESC;
+
+DROP TASK
+    customer_insert;
+DROP TASK
+    customer_insert_2;
+DROP TASK
+    CUSTOMER_TASKS_PROCEDURE;
