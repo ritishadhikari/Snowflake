@@ -1,0 +1,23 @@
+SHOW STREAMS;
+
+DESCRIBE STREAM
+    streams_db_offset.public.sales_stream;
+
+-- View Retention time
+-- Check on the MAX_DATA_EXTENSION_TIME_IN_DAYS which mentions 14
+SHOW PARAMETERS IN TABLE
+    streams_db_offset.public.sales_raw_staging;
+
+-- Increase the staleness period
+ALTER TABLE 
+    streams_db_offset.public.sales_raw_staging
+SET
+    MAX_DATA_EXTENSION_TIME_IN_DAYS=20;
+
+
+SHOW PARAMETERS IN TABLE
+    streams_db_offset.public.sales_raw_staging;
+
+-- Will also reflect in the stale_after in the stream
+DESCRIBE STREAM
+    streams_db_offset.public.sales_stream;

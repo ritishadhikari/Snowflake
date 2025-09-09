@@ -1,0 +1,118 @@
+SELECT
+    *
+FROM 
+    streams_db.public.sales_raw_staging;
+
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_stream;
+
+-- Update the table where streaming is applied
+UPDATE
+    streams_db.public.sales_raw_staging
+SET 
+    product='Potato'
+WHERE
+    product='Banana';
+
+-- Changes reflected in the new table
+SELECT
+    *
+FROM 
+    streams_db.public.sales_raw_staging;
+
+-- In the Metadata$Action column, Potato will be inserted and Banana will be deleted (Total two rows)
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_stream;
+
+-- Not yet reflecting in the sales_final_table
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_final_table;
+
+-- Target table to merge changes from source table
+MERGE INTO 
+    streams_db.public.sales_final_table F
+USING 
+    streams_db.public.sales_stream S
+ON 
+    f.id=s.id
+WHEN 
+    MATCHED
+AND 
+    S.metadata$action='INSERT'
+AND 
+    S.metadata$isupdate=TRUE
+THEN UPDATE
+    SET
+        f.product=s.product,
+        f.price=s.price,
+        f.amount=s.amount,
+        f.store_id=s.store_id;
+
+-- Now will reflect in the sales_final_table
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_final_table;
+
+-- Stream has been consumed, and hence is empty
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_stream;
+
+-- Update 2
+UPDATE
+    streams_db.public.sales_raw_staging
+SET 
+    product='Green Apple'
+WHERE
+    product='Apple';
+
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_stream;
+
+SELECT
+    *
+FROM 
+    streams_db.public.sales_raw_staging;
+
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_final_table;
+
+
+MERGE INTO 
+    streams_db.public.sales_final_table F
+USING 
+    streams_db.public.sales_stream S
+ON 
+    f.id=s.id
+WHEN 
+    MATCHED
+AND 
+    S.metadata$action='INSERT'
+AND 
+
+
+
+    S.metadata$isupdate=TRUE
+THEN UPDATE
+    SET
+        f.product=s.product,
+        f.price=s.price,
+        f.amount=s.amount,
+        f.store_id=s.store_id;
+
+SELECT 
+    *
+FROM 
+    streams_db.public.sales_final_table;

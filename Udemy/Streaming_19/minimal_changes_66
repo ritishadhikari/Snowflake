@@ -1,0 +1,51 @@
+USE streams_db_offset.public;
+
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_raw_staging;
+
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_stream;
+
+UPDATE
+    streams_db_offset.public.sales_raw_staging
+SET 
+    PRODUCT='Potato'
+WHERE
+    PRODUCT='Banana';
+
+-- Potato is updated
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_raw_staging;
+
+-- Shows potato is updated from bananas
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_stream;
+
+
+UPDATE
+    streams_db_offset.public.sales_raw_staging
+SET 
+    PRODUCT='Onion'
+WHERE
+    PRODUCT='Potato';
+
+
+-- Onion is updated
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_raw_staging;
+
+-- Shows Onion is updated from bananas, potato is not reflecting. So streams only captures the latest changes
+SELECT 
+    *
+FROM 
+    streams_db_offset.public.sales_stream;
