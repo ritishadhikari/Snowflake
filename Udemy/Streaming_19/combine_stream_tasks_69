@@ -1,0 +1,154 @@
+USE DATABASE
+    streams_db;
+
+-- Check if streams contains data
+SELECT 
+    system$stream_has_data('sales_stream');
+
+-- Create a task which looks into streams
+CREATE OR REPLACE TASK
+    all_data_changes
+WAREHOUSE='COMPUTE_WH'
+SCHEDULE='1 MINUTE'
+WHEN 
+    system$stream_has_data('sales_stream')  -- name of the stream 
+AS
+        MERGE INTO 
+        sales_final_table f
+        USING
+        (
+            SELECT
+                stre.*,
+                st.location,
+                st.employees
+            FROM 
+                sales_stream stre
+            JOIN    
+                store_table st
+            ON 
+                stre.store_id=st.store_id
+        ) AS s
+        ON 
+            f.id=s.id
+        WHEN MATCHED
+            AND
+                s.metadata$action='DELETE'
+        AND  
+            s.metadata$isupdate=FALSE
+        THEN DELETE
+        WHEN MATCHED
+            AND 
+                s.metadata$action='INSERT'
+                AND  
+                s.metadata$isupdate=TRUE
+        THEN UPDATE
+            SET
+                f.product=s.product,
+                f.price=s.price,
+                f.amount=s.amount,
+                    f.store_id=s.store_id
+        WHEN NOT MATCHED
+            AND 
+                s.metadata$action='INSERT'
+            THEN INSERT(
+                id,
+                product,
+                price,
+                store_id,
+                amount,
+                employees,
+                location
+            )
+            VALUES(
+                s.id,
+                s.product,
+                s.price,
+                s.store_id,
+                s.amount,
+                s.employees,
+                s.location
+                
+            );
+
+-- Resume the task
+ALTER TASK 
+    all_data_changes
+RESUME;
+
+-- Change Data
+-- Insert
+INSERT INTO
+    sales_raw_staging
+VALUES
+    (
+        11,'Milk',1.99,1,2
+    ),   
+    (
+        12,'Chocolate',4.49,1,2
+    ),
+    (
+        13,'Cheese','3.89',1,1
+    );
+
+-- Update
+UPDATE
+    sales_raw_staging
+SET
+    product='Chocolate Bar'
+WHERE
+    product='Chocolate';
+
+-- delete 
+DELETE FROM 
+    sales_raw_staging
+WHERE product='Mango';
+
+
+
+-- Changes will be reflected in Milk, Chocolate Bar and Cheese
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Stream will be there for update
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+--Update will happen in the main table through a task until the task is not completed
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- Verify the history
+SELECT
+    *
+FROM 
+    table(information_schema.task_history())
+ORDER BY 
+    name ASC, 
+    scheduled_time DESC;
+
+
+INSERT INTO
+    sales_raw_staging
+VALUES
+    (
+        14,'Lassi',1.99,1,2
+    );
+
+
+INSERT INTO
+    sales_raw_staging
+VALUES
+    (
+        15,'Basundi',2.99,1,1
+    );
+
+
+-- Drop the task
+DROP TASK 
+    all_data_changes;

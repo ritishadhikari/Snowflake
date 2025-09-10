@@ -1,0 +1,94 @@
+CREATE OR REPLACE DATABASE
+    sales_db;
+
+CREATE OR REPLACE TABLE
+    sales_raw(
+        id VARCHAR,
+        product VARCHAR,
+        price VARCHAR,
+        amount VARCHAR,
+        store_id VARCHAR
+    );
+
+-- insert values 
+INSERT INTO 
+    sales_raw
+VALUES
+    (
+        1, 'Eggs',1.39,1,1
+    ),
+    (
+        2, 'Baking Powder',0.99,1,1
+    ),
+    (
+        3, 'Eggplants',1.79,1,2
+    ),
+    (
+        4, 'IceCream',1.89,1,2
+    ),
+    (
+        5, 'Oats',1.98,2,1
+    );
+
+ALTER TABLE     
+    sales_raw
+SET 
+    change_tracking=TRUE;
+
+
+-- Insert Values
+INSERT INTO 
+    sales_raw
+VALUES
+    (6,'Bread',2.99,1,2);
+
+INSERT INTO 
+    sales_raw
+VALUES
+    (7,'Onions',2.89,1,2);
+
+-- The last two changes will be reflected
+SELECT 
+    *
+FROM 
+    sales_raw
+CHANGES(information=>default)
+AT 
+    (offset => -.5*60);
+
+
+SELECT 
+    CURRENT_TIMESTAMP;
+
+--  Select changes from a given time
+SELECT 
+    *
+FROM 
+    sales_raw
+CHANGES(information=>default)
+AT
+    (timestamp=>'2025-09-10 06:39:20.408 -0700'::timestamp_tz);
+
+UPDATE
+    sales_raw
+SET 
+    product='Toast2'
+WHERE
+    ID=6;
+
+-- Track the changes from the update
+SELECT 
+    *
+FROM 
+    sales_raw
+CHANGES(information=>default)  -- track all the changes and the update will be visible
+AT
+    (timestamp=>'2025-09-10 06:39:20.408 -0700'::timestamp_tz);
+
+SELECT 
+    *
+FROM 
+    sales_raw
+CHANGES(information=>append_only)  -- track only the inserts and hence the updates will not be visible
+AT
+    (timestamp=>'2025-09-10 06:39:20.408 -0700'::timestamp_tz);

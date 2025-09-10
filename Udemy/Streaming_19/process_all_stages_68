@@ -1,0 +1,421 @@
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- First an insert operation
+INSERT INTO 
+    sales_raw_staging 
+VALUES
+    (2,'Lemon',0.99,1,1);
+
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- First Insert through here
+-- Process Update, Insert and Delete simultaneously
+MERGE INTO 
+    sales_final_table f
+USING
+    (
+        SELECT
+            stre.*,
+            st.location,
+            st.employees
+        FROM 
+            sales_stream stre
+        JOIN    
+            store_table st
+        ON 
+            stre.store_id=st.store_id
+    ) AS s
+ON 
+    f.id=s.id
+WHEN MATCHED
+    AND
+        s.metadata$action='DELETE'
+    AND  
+        s.metadata$isupdate=FALSE
+    THEN DELETE
+WHEN MATCHED
+    AND 
+        s.metadata$action='INSERT'
+        AND  
+        s.metadata$isupdate=TRUE
+    THEN UPDATE
+        SET
+            f.product=s.product,
+            f.price=s.price,
+            f.amount=s.amount,
+            f.store_id=s.store_id
+WHEN NOT MATCHED
+    AND 
+        s.metadata$action='INSERT'
+    THEN INSERT(
+        id,
+        product,
+        price,
+        store_id,
+        amount,
+        employees,
+        location
+    )
+    VALUES(
+        s.id,
+        s.product,
+        s.price,
+        s.store_id,
+        s.amount,
+        s.employees,
+        s.location
+        
+    );
+
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Empty once again
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- Insert will be reflecting in the main table
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- Second Update here
+UPDATE 
+    sales_raw_staging
+SET
+    product='Lemonade'
+WHERE
+    product='Lemon';
+
+-- Changes will be reflected in Lemonade
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Stream will be there for update
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- No update in the main table though
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- Process Update, Insert and Delete simultaneously
+MERGE INTO 
+    sales_final_table f
+USING
+    (
+        SELECT
+            stre.*,
+            st.location,
+            st.employees
+        FROM 
+            sales_stream stre
+        JOIN    
+            store_table st
+        ON 
+            stre.store_id=st.store_id
+    ) AS s
+ON 
+    f.id=s.id
+WHEN MATCHED
+    AND
+        s.metadata$action='DELETE'
+    AND  
+        s.metadata$isupdate=FALSE
+    THEN DELETE
+WHEN MATCHED
+    AND 
+        s.metadata$action='INSERT'
+        AND  
+        s.metadata$isupdate=TRUE
+    THEN UPDATE
+        SET
+            f.product=s.product,
+            f.price=s.price,
+            f.amount=s.amount,
+            f.store_id=s.store_id
+WHEN NOT MATCHED
+    AND 
+        s.metadata$action='INSERT'
+    THEN INSERT(
+        id,
+        product,
+        price,
+        store_id,
+        amount,
+        employees,
+        location
+    )
+    VALUES(
+        s.id,
+        s.product,
+        s.price,
+        s.store_id,
+        s.amount,
+        s.employees,
+        s.location
+        
+    );
+
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Empty once again
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- Update will be reflecting in the main table
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+
+
+-- third delete operation
+DELETE FROM 
+    sales_raw_staging
+WHERE 
+    product='Lemonade';
+
+
+-- Delete will be reflected in Lemonade
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Stream will be there for update
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- No update in the main table though
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- Process Update, Insert and Delete simultaneously
+MERGE INTO 
+    sales_final_table f
+USING
+    (
+        SELECT
+            stre.*,
+            st.location,
+            st.employees
+        FROM 
+            sales_stream stre
+        JOIN    
+            store_table st
+        ON 
+            stre.store_id=st.store_id
+    ) AS s
+ON 
+    f.id=s.id
+WHEN MATCHED
+    AND
+        s.metadata$action='DELETE'
+    AND  
+        s.metadata$isupdate=FALSE
+    THEN DELETE
+WHEN MATCHED
+    AND 
+        s.metadata$action='INSERT'
+        AND  
+        s.metadata$isupdate=TRUE
+    THEN UPDATE
+        SET
+            f.product=s.product,
+            f.price=s.price,
+            f.amount=s.amount,
+            f.store_id=s.store_id
+WHEN NOT MATCHED
+    AND 
+        s.metadata$action='INSERT'
+    THEN INSERT(
+        id,
+        product,
+        price,
+        store_id,
+        amount,
+        employees,
+        location
+    )
+    VALUES(
+        s.id,
+        s.product,
+        s.price,
+        s.store_id,
+        s.amount,
+        s.employees,
+        s.location
+        
+    );
+
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Empty once again
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- Deleted record will be reflecting in the main table
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+
+-- Doing all operations togather
+INSERT INTO 
+    sales_raw_staging 
+VALUES
+    (10,'Lemon Juice',2.99,1,1);
+
+UPDATE 
+    sales_raw_staging
+SET
+    price=3
+WHERE
+    product='Apple';
+
+DELETE FROM 
+    sales_raw_staging
+WHERE 
+    product='Cereals';
+
+-- Changes will be reflected
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Stream will be there for insert,update and delete
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- No update in the main table though
+SELECT 
+    *
+FROM 
+    sales_final_table;
+
+-- Process Update, Insert and Delete simultaneously
+MERGE INTO 
+    sales_final_table f
+USING
+    (
+        SELECT
+            stre.*,
+            st.location,
+            st.employees
+        FROM 
+            sales_stream stre
+        JOIN    
+            store_table st
+        ON 
+            stre.store_id=st.store_id
+    ) AS s
+ON 
+    f.id=s.id
+WHEN MATCHED
+    AND
+        s.metadata$action='DELETE'
+    AND  
+        s.metadata$isupdate=FALSE
+    THEN DELETE
+WHEN MATCHED
+    AND 
+        s.metadata$action='INSERT'
+        AND  
+        s.metadata$isupdate=TRUE
+    THEN UPDATE
+        SET
+            f.product=s.product,
+            f.price=s.price,
+            f.amount=s.amount,
+            f.store_id=s.store_id
+WHEN NOT MATCHED
+    AND 
+        s.metadata$action='INSERT'
+    THEN INSERT(
+        id,
+        product,
+        price,
+        store_id,
+        amount,
+        employees,
+        location
+    )
+    VALUES(
+        s.id,
+        s.product,
+        s.price,
+        s.store_id,
+        s.amount,
+        s.employees,
+        s.location
+        
+    );
+
+SELECT 
+    *
+FROM 
+    sales_raw_staging;
+    
+-- Empty once again
+SELECT 
+    *
+FROM 
+    sales_stream;
+
+-- All legitimate records will be reflecting in the main table
+SELECT 
+    *
+FROM 
+    sales_final_table;
