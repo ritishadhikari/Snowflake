@@ -1,0 +1,10 @@
+Materialized_Views:
+    - We have a view that is queried frequently and that a long time to be processed it 
+    can give a bad user experience and give more compute consumption
+    - Solution is to create a materialized view to solve that problem
+
+Don't use meterialized view if data changes are very frequent and that time consider
+leveraging tasks(& streams) instead
+
+Materialized view is only available for enterprise editions and mvs don't support either 
+of UDFs, HAVING, ORDER BY, LIMIT clause
