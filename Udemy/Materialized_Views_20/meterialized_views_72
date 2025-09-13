@@ -1,0 +1,95 @@
+ALTER SESSION SET 
+    use_cached_result=FALSE  -- disable global caching
+
+ALTER WAREHOUSE
+    compute_wh
+SUSPEND;
+
+ALTER WAREHOUSE
+    compute_wh
+RESUME;
+
+-- Prepare a table
+CREATE OR REPLACE TRANSIENT DATABASE
+    orders;
+
+CREATE OR REPLACE SCHEMA tpch_sf100;
+
+CREATE OR REPLACE TABLE 
+    orders.tpch_sf100.orders AS
+    SELECT
+        *
+    FROM 
+        snowflake_sample_data.tpch_sf100.orders;
+
+
+SELECT 
+    *
+FROM 
+     orders.tpch_sf100.orders
+LIMIT 
+    100;
+
+SELECT 
+    YEAR(o_orderdate) AS YEAR,
+    MAX(o_comment) AS max_comment,
+    MIN(o_comment) AS min_comment,
+    MAX(o_clerk) AS max_clerk,
+    MIN(o_clerk) AS min_clerk
+FROM 
+     orders.tpch_sf100.orders 
+GROUP BY
+    YEAR(o_orderdate)
+ORDER BY 
+    YEAR(o_orderdate);
+
+-- Creating a Materialized View:
+CREATE OR REPLACE MATERIALIZED VIEW
+    orders.tpch_sf100.orders_mv
+AS
+    SELECT 
+    YEAR(o_orderdate) AS YEAR,
+    MAX(o_comment) AS max_comment,
+    MIN(o_comment) AS min_comment,
+    MAX(o_clerk) AS max_clerk,
+    MIN(o_clerk) AS min_clerk
+    FROM 
+         orders.tpch_sf100.orders 
+    GROUP BY
+        YEAR(o_orderdate);
+
+-- behind_by column gives how much by time the view is behind from the main table update       -- 
+SHOW MATERIALIZED VIEWS;
+
+-- View gets queried preety fast
+SELECT
+    *
+FROM 
+    orders.tpch_sf100.orders_mv;
+
+-- Update or delete values
+UPDATE 
+    orders.tpch_sf100.orders
+SET
+    o_clerk='ZZClerk'
+WHERE
+    o_orderdate='1992-01-01';
+
+-- Query View post refresh (will be a bit slower to load than the earlier load)
+SELECT
+    *
+FROM 
+    orders.tpch_sf100.orders_mv;
+
+-- After a some amount of time, the view will be refreshed
+SHOW MATERIALIZED VIEWS;
+
+SELECT 
+    CURRENT_TIMESTAMP;
+
+SELECT
+    *
+FROM 
+    TABLE(information_schema.materialized_view_refresh_history(
+        DATE_RANGE_START => '2025-09-11 01:29:40.599 -0700'
+    ));

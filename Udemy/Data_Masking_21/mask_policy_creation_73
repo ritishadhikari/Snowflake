@@ -1,0 +1,278 @@
+USE DATABASE
+    manage_db;
+
+    CREATE OR REPLACE SCHEMA
+    masking_sch;
+
+USE ROLE 
+    accountadmin;
+
+
+CREATE OR REPLACE TABLE
+    customers (
+        id NUMBER,
+        full_name VARCHAR,
+        email VARCHAR,
+        phone VARCHAR,
+        spent NUMBER,
+        create_date DATE DEFAULT CURRENT_DATE
+    );
+
+INSERT INTO 
+    customers 
+        (   
+            id, 
+            full_name, 
+            email,
+            phone,
+            spent
+        )
+VALUES
+  (1,'Lewiss MacDwyer','lmacdwyer0@un.org','262-665-9168',140),
+  (2,'Ty Pettingall','tpettingall1@mayoclinic.com','734-987-7120',254),
+  (3,'Marlee Spadazzi','mspadazzi2@txnews.com','867-946-3659',120),
+  (4,'Heywood Tearney','htearney3@patch.com','563-853-8192',1230),
+  (5,'Odilia Seti','oseti4@globo.com','730-451-8637',143),
+  (6,'Meggie Washtell','mwashtell5@rediff.com','568-896-6138',600);
+
+-- Setup role
+CREATE OR REPLACE ROLE
+    analyst_masked;
+
+CREATE OR REPLACE ROLE
+    analyst_full;
+
+-- Grant Select on table to roles
+GRANT SELECT ON TABLE
+    manage_db.masking_sch.customers
+TO ROLE
+    analyst_masked;
+
+GRANT SELECT ON TABLE
+    manage_db.masking_sch.customers
+TO ROLE
+    analyst_full;
+
+-- Grant Usage on Schema to Roles
+GRANT USAGE ON SCHEMA
+    manage_db.masking_sch
+TO ROLE
+    analyst_masked;
+
+GRANT USAGE ON SCHEMA
+    manage_db.masking_sch
+TO ROLE
+    analyst_full;
+
+-- Grant Usage on Warehouse to Roles
+GRANT USAGE ON WAREHOUSE
+    compute_wh
+TO ROLE
+    analyst_masked;
+
+GRANT USAGE ON WAREHOUSE
+    compute_wh
+TO ROLE
+    analyst_full;
+
+-- Grant Usage on Schema to Databases
+GRANT USAGE ON DATABASE
+    manage_db
+TO ROLE
+    analyst_masked;
+
+GRANT USAGE ON DATABASE
+    manage_db
+TO ROLE
+    analyst_full;
+    
+CREATE USER 
+    ds1
+PASSWORD='ds1'
+LOGIN_NAME='ds1'
+DEFAULT_ROLE='data_scientist'
+DEFAULT_WAREHOUSE='ds_wh'
+MUST_CHANGE_PASSWORD=FALSE;
+
+GRANT ROLE 
+    analyst_masked 
+TO USER
+    ritishadhikari;
+
+GRANT ROLE 
+    analyst_full 
+TO USER
+    ritishadhikari;
+
+-- Setup Masking Policy
+CREATE OR REPLACE MASKING POLICY 
+    phone
+AS
+    (
+        val VARCHAR
+    ) RETURNS VARCHAR ->
+        CASE 
+            WHEN CURRENT_ROLE() IN ('ANALYST_FULL','ACCOUNTADMIN')
+            THEN val
+        ELSE    
+            '##-###-##'
+        END;
+
+-- Apply policy on a specific column
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    phone
+SET
+    MASKING POLICY
+        phone;
+
+-- Data from phone will appear in a non-masked format
+USE ROLE
+    analyst_full;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a non-masked format
+USE ROLE
+    accountadmin;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a masked format
+USE ROLE
+    analyst_masked;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Replace or Drop Policy
+
+-- will not be able to drop the mask policy as it is associated with one or more entities.
+DROP MASKING POLICY
+    phone;
+
+DESCRIBE MASKING POLICY
+    phone;
+
+SHOW MASKING POLICIES;
+
+-- Show columns with applied policies
+SELECT
+    *
+FROM 
+    TABLE(information_schema.policy_references(
+        policy_name=>'phone'
+    ));
+
+-- Remove policy before replacing/dropping
+ALTER TABLE IF EXISTS 
+    customers
+MODIFY COLUMN
+    phone
+UNSET MASKING POLICY ;
+
+-- Now it should be empty
+SELECT
+    *
+FROM 
+    TABLE(information_schema.policy_references(
+        policy_name=>'phone'
+    ));
+
+
+-- Create new Masking Policy
+CREATE OR REPLACE MASKING POLICY 
+    names
+AS
+    (
+        val VARCHAR
+    ) RETURNS VARCHAR ->
+        CASE 
+            WHEN CURRENT_ROLE() IN ('ANALYST_FULL','ACCOUNTADMIN')
+            THEN val
+        ELSE    
+            CONCAT(LEFT(val,2),'*******')
+        END;
+
+-- Apply policy
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    full_name
+SET MASKING POLICY 
+    names;
+
+-- Data from full_name will appear in a non-masked format
+USE ROLE
+    analyst_full;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a non-masked format
+USE ROLE
+    accountadmin;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a masked format
+USE ROLE
+    analyst_masked;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+
+-- Altering existing policies
+ALTER MASKING POLICY 
+    names
+SET BODY ->
+    CASE
+        WHEN CURRENT_ROLE() IN ('ANALYST_FULL','ACCOUNTADMIN')
+            THEN val
+        ELSE 
+            '***-***-***'
+        END;
+
+-- Data from full_name will appear in a non-masked format
+USE ROLE
+    analyst_full;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a non-masked format
+USE ROLE
+    accountadmin;
+
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Data from phone will appear in a masked format
+USE ROLE
+    analyst_masked;
+
+SELECT 
+    *
+FROM 
+    customers;

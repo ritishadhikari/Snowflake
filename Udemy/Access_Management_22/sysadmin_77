@@ -1,0 +1,53 @@
+-- Create a warehouse of size XSmall
+CREATE WAREHOUSE
+    public_wh 
+WITH 
+    warehouse_size='x-small'
+    auto_suspend=300
+    auto_resume=TRUE;
+
+-- grant usage to role public
+GRANT USAGE ON WAREHOUSE 
+    public_wh
+TO ROLE
+    public;
+
+-- Create a database accessible to everyone
+CREATE DATABASE common_db;
+GRANT USAGE ON DATABASE
+    common_db
+TO ROLE
+    public;
+
+-- Create Sales Database for sales
+CREATE DATABASE
+    sales_database;
+    
+GRANT OWNERSHIP ON DATABASE
+    sales_database
+TO ROLE
+    sales_admin;
+
+GRANT OWNERSHIP ON SCHEMA
+    sales_database.public
+TO ROLE
+    sales_admin;
+
+SHOW DATABASES;
+
+-- Create database for hr
+CREATE DATABASE
+    hr_db1;
+    
+GRANT OWNERSHIP ON DATABASE
+    hr_db1
+TO ROLE
+    hr_admin;
+
+-- Won't be possible since hr_admin is not a child of sysadmin
+GRANT OWNERSHIP ON SCHEMA
+    hr_db1.public
+TO ROLE
+    hr_admin;
+
+SHOW DATABASES;

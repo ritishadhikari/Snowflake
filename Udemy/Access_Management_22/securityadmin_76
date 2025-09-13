@@ -1,0 +1,85 @@
+-- With Security Admin, we can create and manage roles and users
+
+CREATE ROLE
+    sales_admin;
+
+CREATE ROLE
+    sales_users;
+
+-- Create heirarchy
+GRANT ROLE
+    sales_users
+TO ROLE
+    sales_admin;
+
+-- As per best practice, assign roles to SYSADMIN
+GRANT ROLE
+    sales_admin
+TO ROLE
+    sysadmin;
+
+-- Create sales user
+CREATE USER 
+    simon_sales
+PASSWORD='123'
+DEFAULT_ROLE=sales_users
+MUST_CHANGE_PASSWORD=TRUE;
+
+GRANT ROLE 
+    sales_users
+TO USER
+    simon_sales;
+
+-- Create sales admin user
+CREATE USER 
+    olivia_sales_admin
+PASSWORD='123'
+DEFAULT_ROLE=sales_admin
+MUST_CHANGE_PASSWORD=TRUE;
+
+GRANT ROLE 
+    sales_admin
+TO USER
+    olivia_sales_admin;
+
+----------------------------------------------------
+
+-- Create Sales Roles & Users for HR --
+CREATE ROLE 
+    hr_admin;
+CREATE ROLE
+    hr_users;
+
+-- Create hierrarchy
+GRANT ROLE
+    hr_users
+TO ROLE
+    hr_admin;
+
+-- This time we will not assign roles to sysadmin (against best practice)
+-- grant role hr_admin to role sysadmin
+
+-- Create hr user
+CREATE USER 
+    oliver_hr
+PASSWORD='123'
+DEFAULT_ROLE=hr_users
+MUST_CHANGE_PASSWORD=TRUE;
+
+GRANT ROLE 
+    hr_users
+TO USER
+    oliver_hr;
+
+
+-- Create hr admin user
+CREATE USER 
+    mike_hr_admin
+PASSWORD='123'
+DEFAULT_ROLE=hr_admin
+MUST_CHANGE_PASSWORD=TRUE;
+
+GRANT ROLE 
+    hr_admin
+TO USER
+    mike_hr_admin;

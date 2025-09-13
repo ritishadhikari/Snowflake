@@ -1,0 +1,166 @@
+USE DATABASE 
+    manage_db;
+
+USE SCHEMA 
+    masking_sch;
+    
+USE ROLE
+    accountadmin;
+
+CREATE OR REPLACE MASKING POLICY 
+    emails 
+AS 
+    (   
+        val VARCHAR 
+    )
+    RETURNS
+        VARCHAR ->
+    CASE
+        WHEN current_role() IN ('ANALYST_FULL') 
+            THEN val
+        WHEN current_role() IN ('ANALYST_MASKED') 
+            THEN regexp_replace(val, '.+\@','******@')  -- leave email domain unmasked
+        ELSE
+            '******'
+END;
+
+
+-- Apply policy
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    email
+SET
+    MASKING POLICY 
+        emails;
+
+-- Validating Policies
+USE ROLE 
+    analyst_full;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    accountadmin;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    analyst_masked;
+SELECT 
+    *
+FROM 
+    customers;
+
+CREATE OR REPLACE MASKING POLICY
+    sha2_pol AS
+        (
+            val VARCHAR
+        )
+            RETURNS 
+                VARCHAR ->
+                    CASE 
+                        WHEN CURRENT_ROLE() IN ('ANALYST_FULL') 
+                            THEN val
+                    ELSE
+                        SHA2(val) -- return hash of the column value
+                    END;
+
+                    
+-- Apply Policy
+
+-- But will not be able to do it since names policy already exists for the full_name
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    full_name
+SET 
+    MASKING POLICY
+        sha2_pol;
+
+-- Unsetting existing policy attached to the full name column
+ALTER TABLE IF EXISTS 
+    customers
+MODIFY COLUMN
+    full_name
+UNSET 
+    MASKING POLICY;
+
+-- Now policy will be correctly applied
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    full_name
+SET 
+    MASKING POLICY
+        sha2_pol;
+
+-- Validating Policies
+USE ROLE 
+    analyst_full;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    accountadmin;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    analyst_masked;
+SELECT 
+    *
+FROM 
+    customers;
+
+-- Example 3
+CREATE OR REPLACE MASKING POLICY 
+    dates AS
+        (
+            val DATE
+        )
+    RETURNS DATE ->
+        CASE 
+            WHEN CURRENT_ROLE() IN ('ANALYST_FULL') 
+                THEN val
+                ELSE
+                    DATE_FROM_PARTS(0001,01,01)::date -- returns 0001-01-01 00:00:00.000
+                END;
+
+-- Apply policy
+ALTER TABLE IF EXISTS
+    customers
+MODIFY COLUMN
+    create_date
+SET 
+    MASKING POLICY
+        dates;
+
+USE ROLE 
+    analyst_full;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    accountadmin;
+SELECT 
+    *
+FROM 
+    customers;
+
+USE ROLE 
+    analyst_masked;
+SELECT 
+    *
+FROM 
+    customers;

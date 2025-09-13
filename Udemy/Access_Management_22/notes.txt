@@ -1,0 +1,46 @@
+Who can access and perform operations on objects in Snowflake
+Two aspects of aspects controll are combined:
+    - Discretionary Access Control (DAC):
+        - Each object has an owner who can grant access to that object
+    - Role-based Access Control (RBAC)
+        - Access privileges are assigned to roles, which in turn assigned to users
+
+Securable Objects Consists of:
+    - Account:
+        - User
+        - Role
+        - Database
+            - Schema
+                - Table
+                - View
+                - Stage
+                - Integration
+                - Other Account objects
+        - Warehouse
+        - Other Account Objects
+
+Every object is owned by a single role (multiple users)
+
+Owner (role) has all privileges per default
+
+Public -> User Admin -> Security Admin -> Account Admin <- Sys Admin
+
+User: People or systems
+Role: Entity to which privileges are granted (role heirarchy)
+Privilege: Level of access to an object (Select, Drop, Create, etc)
+Securable Object: Objects to which privileges can be granted (Database, Table, Warehouse, etc)
+
+Sysadmin and Security Admin are the top-level role in the system. It should be granted only to a 
+limited number of users
+
+Useradmin role is granted to securityadmin 
+
+Can manage users and roles and can manage any object grant globally
+
+Sysadmin role are for create warehouses and databases (and more objects) and recommended that
+all custom roles are assigned`
+
+Useradmin role is dedicated to user and role management only and can create user and roles
+
+Public Role is automatically granted to every user and can create own objects like every other
+role (available to every other user/role)

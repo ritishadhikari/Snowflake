@@ -1,0 +1,27 @@
+USE ROLE 
+    public;
+
+-- Not possible with the public role
+CREATE OR REPLACE DATABASE 
+    public_db;
+
+USE ROLE 
+    sysadmin;
+
+-- now possible with the sysadmin role
+CREATE OR REPLACE DATABASE 
+    public_db;
+
+GRANT OWNERSHIP ON DATABASE
+    public_db
+TO ROLE
+    public;
+
+USE ROLE 
+    public;
+
+SHOW DATABASES;
+
+-- Now after granting ownership of the database, we can drop the database
+DROP DATABASE
+    public_db;

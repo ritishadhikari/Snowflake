@@ -1,0 +1,22 @@
+-- UserAdmin
+CREATE USER
+    ben
+PASSWORD='123'
+DEFAULT_ROLE=ACCOUNTADMIN
+MUST_CHANGE_PASSWORD=TRUE;
+
+
+GRANT ROLE
+    hr_admin
+TO USER 
+    ben;
+    
+-- For the hr_admin, we will see that the hr_admin role is owned by the security admin, so we can grant the same role hr_admin even through the security admin
+SHOW ROLES;
+
+GRANT ROLE 
+    hr_admin
+TO ROLE
+    sysadmin;
+
+SHOW USERS;
