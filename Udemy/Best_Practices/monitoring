@@ -1,0 +1,40 @@
+-- Table storage
+SELECT 
+    *
+FROM 
+    snowflake.account_usage.table_storage_metrics;
+
+-- How much is queried in the database
+SELECT
+    *
+FROM 
+    snowflake.account_usage.query_history;
+
+SELECT 
+    database_name,
+    COUNT(*) AS number_of_queries,
+    SUM(credits_used_cloud_services) AS total_credits_consumed
+FROM 
+    snowflake.account_usage.query_history
+GROUP BY
+    database_name
+ORDER BY 
+    SUM(credits_used_cloud_services) DESC;
+
+
+-- Usage of credits by warehouse
+SELECT 
+    *
+FROM 
+    snowflake.account_usage.warehouse_metering_history;
+
+SELECT 
+    warehouse_name,
+    SUM(credits_used) as total_credit_used
+FROM 
+    snowflake.account_usage.warehouse_metering_history
+GROUP BY 
+    warehouse_name
+ORDER BY 
+    SUM(credits_used) DESC;
+    

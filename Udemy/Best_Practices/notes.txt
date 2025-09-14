@@ -1,0 +1,20 @@
+Warehouses:
+    - Enable Auto-Suspend
+    - Enable Auto-Resume (if we have auto-suspend to True)
+    - Set Appropriate timeouts
+    - Choose size based on workload 
+
+Table Design:
+    - Appropriate table type 
+        - For staging and development, use transient table
+        - For production, use permanent table
+    - Appropriate Data type
+    - Set cluster key only if necessary
+
+Monitoring:
+    - Cost Management
+
+Retention Period:
+    - Staging Databases - 0 days 
+    - Production - 4-7 days (1 day min)
+    - Large High Churn tables (0 Days)
