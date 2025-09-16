@@ -85,7 +85,7 @@ FROM
 SELECT 
     CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
     raw_file:spoken_languages[0]:language AS first_language,
-     raw_file:spoken_languages[0]:level AS first_language_level
+    raw_file:spoken_languages[0]:level AS first_language_level
 FROM 
     our_first_db.public.json_raw;
 
