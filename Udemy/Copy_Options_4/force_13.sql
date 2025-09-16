@@ -1,4 +1,5 @@
--- Specifies to load all files, regardless of whether they have been loaded previously and have not changed since they were loaded. This option reloads files, potentially duplicating data in a table
+-- Specifies to load all files, regardless of whether they have been loaded previously and have not changed since they were loaded. 
+-- This option reloads files, potentially duplicating data in a table
 
 USE DATABASE 
     copy_db;
