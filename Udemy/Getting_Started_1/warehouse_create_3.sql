@@ -1,33 +1,12 @@
-ALTER DATABASE 
-    FIRST_DB 
-RENAME TO
-    OUR_FIRST_DB;
+CREATE OR REPLACE WAREHOUSE
+    second_warehouse
+WITH 
+    WAREHOUSE_SIZE=XSMALL
+    MIN_CLUSTER_COUNT=1
+    MAX_CLUSTER_COUNT=3
+    SCALING_POLICY="Economy"  -- Default is "Standard"
+    INITIALLY_SUSPENDED=TRUE
+    AUTO_SUSPEND=300
+    COMMENT="This is our second warehouse";
 
-CREATE TABLE "OUR_FIRST_DB"."PUBLIC"."LOAN_PAYMENT" (
-    "Loan_ID" STRING,
-    "Loan_status" STRING,
-    "Principal" STRING,
-    "terms" STRING,
-    "effective date" STRING,
-    "due_date" STRING,
-    "paid_off_time" STRING,
-    "past_due_days" STRING,
-    "age" STRING, 
-    "education" STRING,
-    "gender" STRING
-);
-
-SELECT 
-    *
-FROM 
-    "OUR_FIRST_DB"."PUBLIC"."LOAN_PAYMENT";
-
-COPY INTO 
-    LOAN_PAYMENT
-FROM
-    s3://bucketsnowflakes3/Loan_payments_data.csv
-file_format=(
-    type=csv,
-    field_delimiter=",",
-    skip_header=1
-);
+    
