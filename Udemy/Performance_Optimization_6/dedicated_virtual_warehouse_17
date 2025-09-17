@@ -1,7 +1,7 @@
 -- Create Virtual Warehouse for data scientist & DBA
 
 -- Data Scientist
-CREATE OR REPLACE WAWelcome, superstar. Cortana. OK, Dave, David, Namirage iPhone Superstar Introduction Table in the. I give him that Royal Welcome 123 superstar. Only let's go Mr Neil Alexinger in the period I'm going to experience it. Earn. Hey, everyone. Good morning, good afternoon, good evening. Kasih Rumi Hip Hop's a film. REHOUSE 
+CREATE OR REPLACE WAREHOUSE 
     ds_wh
 WITH
     WAREHOUSE_SIZE='small'
@@ -10,7 +10,7 @@ WITH
     AUTO_RESUME=TRUE
     MIN_CLUSTER_COUNT=1
     MAX_CLUSTER_COUNT=1
-    SCALING_POLICY='standard';
+    SCALING_POLICY='z';
 
 -- DBA
 CREATE OR REPLACE WAREHOUSE
