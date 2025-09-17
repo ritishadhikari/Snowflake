@@ -66,10 +66,10 @@ CREATE OR REPLACE TABLE
 
 COPY INTO 
     our_first_db.public.happiness
+FROM 
+    @manage_db.external_stages.csv_folder_gcp
 LIMIT
     10;
-FROM 
-    @manage_db.external_stages.csv_folder_gcp;
 
 SELECT 
     *
