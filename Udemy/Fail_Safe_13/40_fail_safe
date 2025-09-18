@@ -2,7 +2,9 @@
 SELECT
     *
 FROM 
-    snowflake.account_usage.storage_usage 
+    snowflake.account_usage.
+    
+     
 ORDER BY
     usage_date DESC;
 
