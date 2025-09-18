@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE TABLE 
     our_first_db.public.customers (
         id INT,
@@ -58,7 +59,7 @@ FROM
 LIMIT 
     10;
 
--- Time Table is also applicable in Snowflake schemas
+-- Time Travel is also applicable in Snowflake schemas
 DROP SCHEMA
     our_first_db.public;
 
@@ -82,7 +83,7 @@ FROM
 LIMIT 
     10;
 
--- -- Time Table is also applicable in Snowflake databases
+-- -- Time Travel is also applicable in Snowflake databases
 DROP DATABASE
     our_first_db;
 

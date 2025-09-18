@@ -43,7 +43,7 @@ FROM
 LIMIT 
     10;
 
---  We are unaware that last_name has been updated and hence we are only looking to revert the change on data analyst only
+--  We are unaware that 'last_name' has been updated and hence we are only looking to revert the change on 'job' only
 CREATE OR REPLACE TABLE
     our_first_db.public.test AS
         SELECT
