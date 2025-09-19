@@ -26,7 +26,7 @@ TO SHARE
 
 
 
--- This will hoewever work since this is a secure view
+-- This will however work since this is a secure view
 GRANT SELECT ON VIEW
     customer_db.public.secure_customer_view
 TO SHARE
