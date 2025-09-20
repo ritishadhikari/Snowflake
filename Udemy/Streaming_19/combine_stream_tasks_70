@@ -33,20 +33,20 @@ AS
         WHEN MATCHED
             AND
                 s.metadata$action='DELETE'
-        AND  
-            s.metadata$isupdate=FALSE
+            AND  
+                s.metadata$isupdate=FALSE
         THEN DELETE
         WHEN MATCHED
             AND 
                 s.metadata$action='INSERT'
-                AND  
+            AND  
                 s.metadata$isupdate=TRUE
         THEN UPDATE
             SET
                 f.product=s.product,
                 f.price=s.price,
                 f.amount=s.amount,
-                    f.store_id=s.store_id
+                f.store_id=s.store_id
         WHEN NOT MATCHED
             AND 
                 s.metadata$action='INSERT'
