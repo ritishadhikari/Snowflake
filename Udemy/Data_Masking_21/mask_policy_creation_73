@@ -75,7 +75,7 @@ GRANT USAGE ON WAREHOUSE
 TO ROLE
     analyst_full;
 
--- Grant Usage on Schema to Databases
+-- Grant Usage on Databases to Roles
 GRANT USAGE ON DATABASE
     manage_db
 TO ROLE
