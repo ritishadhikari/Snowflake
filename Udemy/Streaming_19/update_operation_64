@@ -101,9 +101,6 @@ WHEN
 AND 
     S.metadata$action='INSERT'
 AND 
-
-
-
     S.metadata$isupdate=TRUE
 THEN UPDATE
     SET
