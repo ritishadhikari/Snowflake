@@ -2,5 +2,6 @@ A task is a simple SQL function that will be executed at a specific time
 
 It can be a standalone task or trees of tasks
 
-Tree of Tasks:
-    - 
+If there are tree of tasks:
+    - Suspend the root task first and then the child task
+    - Resume the smallest child first and then move upward to the grandest parent
