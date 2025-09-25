@@ -1,0 +1,14 @@
+Snowflake Cortex:
+    - Snowpark ML
+        - Snowpark ML Modelling
+        - Snowpark ML Operations(MLOPs) -w/model registry
+        - Snowpark ML Data Access (+Framework Connectors)
+    - ML-Powered Functions
+        - Time series Forecasting
+        - Anamoly Detection
+        - Contribution Explorer
+        - Classification
+    - LLM Functions
+        - COMPLETE+EXTRACT_ANSWER
+        - SENTIMENT+SUMMARIZE+TRANSLATE
+        - Snowflake CoPilot + Universal Search+ Document AI
