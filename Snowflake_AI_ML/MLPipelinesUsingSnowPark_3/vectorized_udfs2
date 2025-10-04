@@ -1,0 +1,49 @@
+USE SCHEMA 
+    test.public;
+
+-- Vectorized Function
+CREATE OR REPLACE FUNCTION 
+    add_v(x FLOAT, y FLOAT)
+RETURNS FLOAT
+LANGUAGE PYTHON
+RUNTIME_VERSION=3.9
+PACKAGES=('pandas')
+handler='add_v'
+AS $$
+import pandas as pd
+from _snowflake import vectorized
+
+@vectorized(input=pd.DataFrame,max_batch_size=100)
+def add_v(df):
+    return df[0]+df[1]
+$$;
+
+-- Non Vectorized
+CREATE OR REPLACE FUNCTION 
+    add_2(x FLOAT, y FLOAT)
+RETURNS FLOAT
+LANGUAGE PYTHON
+RUNTIME_VERSION=3.9
+HANDLER='add_2'
+AS $$
+def add_2(x,y):
+    return x+y
+$$;
+
+CREATE OR REPLACE TABLE
+    xy(x FLOAT, y FLOAT);
+
+INSERT INTO 
+    xy
+VALUES
+    (1.0,3.14),
+    (2.2,1.59),
+    (3.0,-0.5);
+
+SELECT 
+    x,
+    y,
+    add_v(x,y),
+    add_2(x,y)
+FROM 
+    xy;

@@ -1,0 +1,72 @@
+CREATE OR REPLACE DATABASE
+    test;
+
+CREATE OR REPLACE SCHEMA
+    test.public;
+
+USE SCHEMA 
+    test.public;
+
+-- Create a Procedure
+CREATE OR REPLACE PROCEDURE
+    proc1(num float)
+RETURNS
+    string
+LANGUAGE
+    python
+RUNTIME_VERSION='3.9'
+PACKAGES=(
+        'snowflake-snowpark-python==1.13.0'
+    )
+HANDLER='proc1'
+AS $$
+import snowflake.snowpark as snowpark
+def proc1(session:snowpark.Session, num:float):
+    query=f"SELECT '+' || to_char({num})"
+    return session.sql(query).collect()[0][0]
+$$;
+
+CALL proc1(22.5);
+
+-- Create an User Defined Function
+CREATE OR REPLACE FUNCTION 
+    proc2(num FLOAT)
+RETURNS 
+    STRING
+LANGUAGE 
+    PYTHON
+RUNTIME_VERSION='3.9'
+handler='proper_python'
+AS  $$
+def proper_python(num:float):
+    return f'+{str(num)}'
+$$;
+
+SELECT 
+    proc2(22.5);
+
+-- Create an User Defined Table Function
+CREATE OR REPLACE FUNCTION 
+    proc3(s string)
+RETURNS
+    TABLE(
+        out VARCHAR,
+        out2 VARCHAR
+    )
+LANGUAGE 
+    PYTHON
+RUNTIME_VERSION='3.9'
+HANDLER='MyClass'
+AS $$
+class MyClass:
+    def process(self, s:str):
+        yield(s,s*2)
+        yield(s[0],s[0]*2)
+$$;
+
+SELECT
+    *
+FROM 
+    TABLE(proc3('abc'));
+    
+
