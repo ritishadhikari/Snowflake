@@ -1,0 +1,22 @@
+-- Check which versions are available
+SELECT 
+    *
+FROM 
+    information_schema.packages;
+    
+-- Check for the distinct runtime versions available in python
+SELECT DISTINCT 
+    runtime_version
+FROM    
+    information_schema.packages
+ORDER BY
+    runtime_version DESC;
+
+SELECT 
+    *
+FROM 
+    information_schema.packages
+WHERE
+    runtime_version='3.11'
+AND 
+    package_name='snowflake-ml-python';
