@@ -1,0 +1,63 @@
+CREATE SCHEMA IF NOT EXISTS
+    test.diamonds;
+
+USE SCHEMA 
+    test.diamonds;
+
+CREATE OR REPLACE FILE FORMAT
+    test.diamonds.csv_header_list
+TYPE='csv'
+SKIP_HEADER=1;
+
+CREATE OR REPLACE STAGE
+    test.diamonds.int_stage
+FILE_FORMAT=csv_header_list;
+
+CREATE OR REPLACE STAGE
+    test.diamonds.ext_stage_list
+FILE_FORMAT=test.diamonds.csv_header_list
+URL='s3://sfquickstarts/intro-to-machine-learning-with-snowpark-ml-for-python/';
+
+LIST 
+    @ext_stage_list;
+
+SELECT 
+    METADATA$FILE_ROW_NUMBER AS
+        ROWID,
+        $1 AS value,
+        $2 AS quality,
+        $3 AS quality_label
+FROM
+    @test.diamonds.ext_stage_list/diamonds.csv
+LIMIT
+    10;
+
+CREATE OR REPLACE TABLE 
+    diamonds
+USING TEMPLATE (
+    SELECT 
+        ARRAY_AGG(OBJECT_CONSTRUCT(*))
+    FROM 
+        TABLE(INFER_SCHEMA(
+            LOCATION => '@ext_stage_list',
+            FILES => 'diamonds.csv',
+            FILE_FORMAT => 'csv_header_parse'
+            )
+        )
+    );
+
+SELECT
+    *
+FROM 
+    test.diamonds.diamonds;
+
+COPY INTO 
+    diamonds
+FROM 
+    @ext_stage_list
+FILES=('diamonds.csv');
+
+SELECT 
+    *
+FROM 
+    test.diamonds.diamonds;
