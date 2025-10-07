@@ -1,0 +1,17 @@
+SELECT 
+    *
+FROM 
+    test.public.housing
+SAMPLE
+    ROW(10 ROWS);
+
+SELECT 
+    *
+FROM 
+    test.public.housing
+TABLESAMPLE(.010);
+
+SELECT 
+    APPROX_COUNT_DISTINCT(*)
+FROM 
+    SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.LINEITEM;
