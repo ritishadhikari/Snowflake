@@ -1,0 +1,49 @@
+USE SCHEMA
+    imdb.public;
+
+
+CREATE OR REPLACE VIEW view_test_dataset AS
+SELECT REVIEW, SENTIMENT, SENTIMENT_FLAG
+FROM (
+    SELECT
+        REVIEW,
+        SENTIMENT,
+        CASE WHEN (SENTIMENT = 'positive') THEN 1 ELSE 2 END AS SENTIMENT_FLAG,
+        -- Include a column to order by for consistent results
+        ROW_NUMBER() OVER (ORDER BY REVIEW) AS row_num
+    FROM imdb.public.test_dataset
+) sub
+WHERE row_num > 1;
+
+SELECT 
+    *
+FROM 
+    view_test_dataset
+LIMIT 
+    10;
+
+SELECT 
+    *,
+    ARRAY_CONSTRUCT(1,2) AS array_construct_col,
+    PREDICT_REVIEW(ARRAY_CONSTRUCT(REVIEW,SENTIMENT_FLAG)) AS PREDICTED_REVIEW,
+    PREDICT_REVIEW_BATCH(REVIEW) AS PREDICTED_REVIEW_BATCH
+FROM 
+    VIEW_TEST_DATASET
+LIMIT 
+    10;
+
+CREATE OR REPLACE TABLE
+    review_prediction AS
+        SELECT 
+            *,
+            PREDICT_REVIEW_BATCH(REVIEW) AS PREDICTED_REVIEW_BATCH
+        FROM
+            VIEW_TEST_DATASET;
+
+-- Actual and Prediction not matching up
+SELECT 
+    *
+FROM 
+    REVIEW_PREDICTION
+WHERE
+    SENTIMENT_FLAGP<>REDICTED_REVIEW_BATCH;
