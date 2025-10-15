@@ -1,0 +1,13 @@
+Snowpark ML APIs:
+    - Modelling
+        - wrappers around scikit-learn/XGBoost/LightGBM
+        - fit/transform() distributed SQL preprocessing
+        - fit() automatic stored proc for model training
+        - distributed HPO/Grid/RandomizedSearchCV
+        - distributed performance metrics
+    - Operations (MLOPS)
+        - predict() model serving in temp vectorized UDF
+        - Model registry
+    - Data Access
+        - FileSystem/Fileset APIs
+        - Pytorch/Tensorflow Framework Connectors
