@@ -1,0 +1,77 @@
+USE DATABASE test;
+USE SCHEMA public;
+
+CREATE OR REPLACE SNOWFLAKE.ML.CLASSIFICATION 
+    clf_multiclass (
+        INPUT_DATA => SYSTEM$QUERY_REFERENCE(
+            '   
+                SELECT
+                    interest,
+                    rating,
+                    class 
+                FROM  
+                    test.public.purchases
+                WHERE 
+                    class IS NOT NULL
+            '
+            ),
+        TARGET_COLNAME=>'class'
+    );
+
+SHOW 
+    SNOWFLAKE.ML.CLASSIFICATION ;
+
+
+SELECT 
+    interest,
+    rating,
+    clf_multiclass!predict(
+        INPUT_DATA => object_construct(*)
+    ) AS predictions
+FROM 
+    purchases
+WHERE 
+    class IS NULL;
+
+WITH cte AS (
+        SELECT 
+            interest,
+            rating,
+            clf_multiclass!predict(
+                INPUT_DATA => object_construct(*)
+            ) AS predictions
+        FROM 
+            purchases
+        WHERE 
+            class IS NULL
+    )
+SELECT 
+    predictions:class AS pred_class,
+    ROUND(predictions['probability']['not interested'],4) AS not_interested_proba,
+    ROUND(predictions:probability:purchase,4) AS purchase_proba,
+    ROUND(predictions:probability:add_to_wishlist,4) AS add_to_wishlist_proba
+FROM 
+    cte
+LIMIT
+    10;
+
+CALL 
+    clf_multiclass!show_evaluation_metrics();
+
+CALL 
+    clf_multiclass!show_global_evaluation_metrics();
+
+CALL 
+    clf_multiclass!show_threshold_metrics();
+
+
+CALL 
+    clf_multiclass!show_confusion_matrix();
+
+
+CALL 
+    clf_multiclass!show_feature_importance();
+
+
+CALL 
+    clf_multiclass!show_training_logs();

@@ -1,0 +1,137 @@
+CREATE OR REPLACE TABLE 
+    test.public.purchases AS (
+        SELECT
+            CAST( UNIFORM(0,4,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(0,3,RANDOM()) AS rating,
+            FALSE AS label,
+            'not interested' AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+        UNION ALL
+
+        SELECT
+            CAST( UNIFORM(4,7,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(3,7,RANDOM()) AS rating,
+            FALSE AS label,
+            'add_to_wishlist' AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+        UNION ALL
+
+        SELECT
+            CAST( UNIFORM(7,10,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(7,10,RANDOM()) AS rating,
+            True AS label,
+            'purchase' AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+        UNION ALL
+
+        SELECT
+            CAST( UNIFORM(0,4,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(0,3,RANDOM()) AS rating,
+            NULL AS label,
+            NULL AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+        UNION ALL
+
+        SELECT
+            CAST( UNIFORM(4,7,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(3,7,RANDOM()) AS rating,
+            NULL AS label,
+            NULL AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+        UNION ALL
+        
+        SELECT
+            CAST( UNIFORM(7,10,RANDOM()) AS VARCHAR) AS interest,
+            UNIFORM(7,10,RANDOM()) AS rating,
+            NULL AS label,
+            NULL AS class 
+        FROM 
+            TABLE(GENERATOR(ROWCOUNT =>100))
+
+    );
+
+
+SELECT 
+    *
+FROM 
+    test.public.purchases
+LIMIT 
+    10;
+
+SELECT 
+    CASE 
+        WHEN 
+            label IS NOT NULL THEN TRUE
+        ELSE 
+            FALSE 
+        END AS labelled,
+    COUNT(*) 
+FROM
+    test.public.purchases
+GROUP BY 
+    1;
+
+-- Train the model with the training dataset
+CREATE OR REPLACE snowflake.ml.classification
+    clf_binary (
+        INPUT_DATA => SYSTEM$QUERY_REFERENCE(
+                '
+                    SELECT
+                        interest,
+                        rating, 
+                        label
+                    FROM
+                        test.public.purchases
+                    WHERE
+                        label IS NOT NULL
+                '
+            ),
+        TARGET_COLNAME => 'label',
+        CONFIG_OBJECT => {'evaluate': TRUE}
+    );
+
+
+SHOW snowflake.ml.classification;
+
+-- Get inferences from the test dataset
+SELECT 
+    interest,
+    rating,
+    CAST(clf_binary!PREDICT (
+            INPUT_DATA => OBJECT_CONSTRUCT(*)
+        ):class AS VARCHAR) AS preds
+FROM 
+    test.public.purchases
+WHERE 
+    label IS NULL;
+
+CALL 
+    clf_binary!show_evaluation_metrics();
+
+CALL 
+    clf_binary!show_global_evaluation_metrics();
+
+
+CALL 
+    clf_binary!show_threshold_metrics();
+
+
+CALL 
+    clf_binary!show_confusion_matrix();
+
+
+CALL 
+    clf_binary!show_feature_importance();
+
+CALL 
+    clf_binary!show_training_logs();
