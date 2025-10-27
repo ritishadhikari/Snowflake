@@ -1,0 +1,142 @@
+USE DATABASE 
+    test;
+
+USE SCHEMA
+    public;
+
+SELECT
+    *
+FROM 
+    marketing
+LIMIT 
+    10;
+
+SELECT
+    y,
+    COUNT(*)
+FROM 
+    marketing
+GROUP BY 
+    1;
+
+CREATE OR REPLACE VIEW
+    marketing_view AS (
+        SELECT  
+            *,
+            CASE WHEN UNIFORM(0::float,1::float, RANDOM()) < 0.95
+                THEN 'train'
+                ELSE 'infer'
+                END AS grp
+        FROM 
+            marketing 
+    );
+
+SELECT 
+    *
+FROM 
+   marketing_view; 
+
+CREATE OR REPLACE VIEW
+    marketing_train AS (
+        SELECT
+            * EXCLUDE grp
+        FROM 
+            marketing_view
+        WHERE
+            grp='train'
+                
+    );
+
+SELECT 
+    COUNT(*)
+FROM 
+    marketing_train;
+
+CREATE OR REPLACE VIEW
+    marketing_infer AS (
+        SELECT
+            * EXCLUDE grp
+        FROM 
+            marketing_view
+        WHERE 
+            grp='infer'
+    );
+
+SELECT 
+    COUNT(*)
+FROM 
+    marketing_infer;
+    
+CREATE OR REPLACE snowflake.ml.classification
+    banl_clf (
+        INPUT_DATA => SYSTEM$REFERENCE('VIEW','marketing_train'),
+        TARGET_COLNAME => 'Y',
+        CONFIG_OBJECT => {
+                            'evaluate':True,
+                            'on_error':'skip'
+                            }
+    );
+
+SHOW snowflake.ml.classification;
+
+SELECT 
+    *,
+    banl_clf!PREDICT(
+        INPUT_DATA => object_construct(*)
+    ) AS preds
+FROM
+    marketing_infer
+LIMIT 
+    10;
+
+    
+-- Code to create a table from a generated dataset
+CREATE OR REPLACE TABLE
+    marketing_preds AS (
+        SELECT 
+            y,
+            preds:class:boolean AS pred,
+            preds:probability['False'] AS false_proba,
+            preds:probability['True'] AS true_proba
+        FROM
+            (
+                SELECT 
+                    y,
+                    banl_clf!PREDICT(
+                        INPUT_DATA => object_construct(*)
+                    ) AS preds
+                FROM
+                    marketing_infer
+                            )
+    );
+
+
+SELECT 
+    *
+FROM 
+    marketing_preds
+LIMIT 
+    10;
+
+
+CALL 
+    banl_clf!show_evaluation_metrics();
+
+CALL 
+    banl_clf!show_global_evaluation_metrics();
+
+
+CALL 
+    banl_clf!show_threshold_metrics();
+
+
+CALL 
+    banl_clf!show_confusion_matrix();
+
+
+CALL 
+    banl_clf!show_feature_importance();
+
+CALL 
+    banl_clf!show_training_logs();
+
