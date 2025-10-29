@@ -1,0 +1,144 @@
+SELECT
+    $1:DATE::DATE AS "DATE",
+    $1:INDEX::INTEGER AS "INDEX",
+    $1:NAME::VARCHAR AS "NAME",
+    $1:TEMP::DECIMAL(5, 2) AS "TEMP",
+    $1:WIND::VARCHAR AS "WIND"
+FROM
+    weather;
+
+CREATE OR REPLACE TABLE 
+    weather AS (
+        SELECT
+            $1:DATE::DATE AS "DATE",
+            $1:INDEX::INTEGER AS "INDEX",
+            $1:NAME::VARCHAR AS "NAME",
+            $1:TEMP::DECIMAL(5, 2) AS "TEMP",
+            $1:WIND::VARCHAR AS "WIND"
+        FROM
+            weather
+    );
+
+SELECT 
+    *
+FROM 
+    weather;
+
+    
+WITH cte AS (
+    SELECT 
+        date::timestamp_ntz AS ts,
+        temp
+    FROM 
+        weather
+    WHERE
+        name='ALBANY INTERNATIONAL AIRPORT'
+    )
+SELECT 
+    ts,
+    COUNT(*) AS date_count
+FROM 
+    cte
+GROUP BY 
+    ts
+HAVING 
+    date_count>1;
+
+SELECT 
+    *
+FROM 
+    weather 
+WHERE 
+    name='ALBANY INTERNATIONAL AIRPORT'
+AND DATE IN (
+    '2022-02-28 00:00:00.000',
+    '2018-02-28 00:00:00.000'
+);
+
+DELETE FROM 
+    weather
+WHERE 
+    name='ALBANY INTERNATIONAL AIRPORT'
+AND 
+    (
+        date='2022-02-28' 
+        AND 
+        temp=29.7
+    )
+OR
+    (
+        date='2018-02-28' 
+        AND 
+        temp=41.2
+    );
+
+-- Now no duplicate records would be coming
+WITH cte AS (
+    SELECT 
+        date::timestamp_ntz AS ts,
+        temp
+    FROM 
+        weather
+    WHERE
+        name='ALBANY INTERNATIONAL AIRPORT'
+    )
+SELECT 
+    ts,
+    COUNT(*) AS date_count
+FROM 
+    cte
+GROUP BY 
+    ts
+HAVING 
+    date_count>1;
+
+
+-- Create Forecast
+CREATE 
+    snowflake.ml.forecast
+        fw1 (
+            input_data => SYSTEM$QUERY_REFERENCE (
+            $$
+                SELECT 
+                    date::timestamp_ntz AS ts,
+                    temp
+                FROM 
+                    weather
+                WHERE
+                    name='ALBANY INTERNATIONAL AIRPORT'
+            $$
+            ),
+            timestamp_colname => 'ts',
+            target_colname => 'temp'
+        );
+
+# Inferencing
+CALL 
+    fw1!forecast(
+        forecasting_periods => 30,
+        config_object => {
+                            'prediction_interval':0.9
+                        }
+    );   
+
+
+    
+SELECT
+    date AS ts, 
+    temp AS actual,
+    NULL AS forecast,
+    NULL AS lower_bound,
+    NULL AS upper_bound
+FROM    
+    weather
+WHERE
+    name='ALBANY INTERNATIONAL AIRPORT'
+UNION ALL
+SELECT
+    ts,
+    NULL AS actual,
+    forecast,
+    lower_bound,
+    upper_bound
+FROM 
+    TABLE(RESULT_SCAN(LAST_QUERY_ID()));
