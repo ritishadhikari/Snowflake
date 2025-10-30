@@ -1,0 +1,47 @@
+SELECT 
+    date::TIMESTAMP_NTZ AS ts,
+    temp
+FROM 
+    weather
+WHERE 
+    name='ALBANY INTERNATIONAL AIRPORT';
+
+CREATE snowflake.ml.anomaly_detection 
+    adw11 (
+        input_data => SYSTEM$QUERY_REFERENCE(
+            $$
+                SELECT
+                    date::timestamp_ntz AS ts,
+                    temp
+                FROM 
+                    test.ts.weather
+                WHERE 
+                    name='ALBANY INTERNATIONAL AIRPORT'
+                AND 
+                    DATE < '2021-01-01'
+            $$
+        ),
+        timestamp_colname => 'ts',
+        target_colname => 'temp',
+        label_colname => ''
+    );
+
+SHOW snowflake.ml.anomaly_detection;
+
+call adw11!detect_anomalies(
+    input_data => SYSTEM$QUERY_REFERENCE(
+            $$
+                SELECT
+                    date::timestamp_ntz AS ts,
+                    temp
+                FROM 
+                    test.ts.weather
+                WHERE 
+                    name='ALBANY INTERNATIONAL AIRPORT'
+                AND 
+                    DATE >= '2021-01-01'
+            $$
+        ),
+        timestamp_colname => 'ts',
+        target_colname => 'temp'
+);
