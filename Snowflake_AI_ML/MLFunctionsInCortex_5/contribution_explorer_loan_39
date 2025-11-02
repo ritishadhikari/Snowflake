@@ -1,0 +1,128 @@
+USE SCHEMA 
+    test.public;
+
+
+SELECT
+    *
+FROM
+    test.public.marketing
+LIMIT 
+    10;
+
+WITH source AS (
+    SELECT 
+        *
+    FROM 
+        marketing
+    ),
+    input AS (
+        SELECT
+            {
+                'job': job,
+                'marital': marital,
+                'housing': housing,
+                'loan': loan
+            } AS cat_dims,
+            {
+                'age': age
+            } AS cont_dims,
+            1.0::float AS metric,
+            y::boolean AS label
+        FROM 
+            source
+    ),
+    analysis AS (
+        SELECT 
+            res.*
+        FROM input,
+            TABLE(SNOWFLAKE.ML.TOP_INSIGHTS(cat_dims, cont_dims, metric, label) OVER (PARTITION BY 0)) AS res
+    )
+    
+SELECT
+    *,
+    contributor,
+    TRUNC(expected_metric_test) AS expected,
+    metric_test AS actual,
+    relative_change*100 || '%' AS ratio
+FROM 
+    analysis
+WHERE 
+    abs(relative_change-1)>0.4
+AND NOT 
+    ARRAY_TO_STRING(contributor,',') LIKE '%not%'
+ORDER BY
+    relative_change DESC;
+
+
+
+
+
+WITH source AS (
+        (
+            SELECT
+                job,
+                marital,
+                age,
+                y
+            FROM 
+                test.public.marketing
+            WHERE 
+                NOT y
+            ORDER BY
+                duration ASC
+            LIMIT 
+                5
+        )
+        UNION
+        (
+            SELECT
+                job,
+                marital,
+                age,
+                y
+            FROM 
+                test.public.marketing
+            WHERE 
+                y
+            ORDER BY
+                duration DESC
+            LIMIT 
+                2
+        )
+            
+    ),
+    input AS (
+        SELECT
+            {
+                'job': job,
+                'marital': marital
+            } AS cat_dims,
+            {
+                'age': age
+            } AS cont_dims,
+            1.0::float AS metric,
+            y::boolean AS label
+        FROM 
+            source
+    ),
+    analysis AS (
+        SELECT 
+            res.*
+        FROM input,
+            TABLE(SNOWFLAKE.ML.TOP_INSIGHTS(cat_dims, cont_dims, metric, label) OVER (PARTITION BY 0)) AS res
+    )
+    
+SELECT
+    *,
+    contributor,
+    TRUNC(expected_metric_test) AS expected,
+    metric_test AS actual,
+    relative_change*100 || '%' AS ratio
+FROM 
+    analysis
+WHERE 
+    abs(relative_change-1)>0.4
+AND NOT 
+    ARRAY_TO_STRING(contributor,',') LIKE '%not%'
+ORDER BY
+    relative_change DESC;

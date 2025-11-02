@@ -1,0 +1,92 @@
+SELECT
+  *
+FROM
+  "TEST"."PUBLIC"."TITANIC"
+LIMIT
+  10;
+
+
+-- This query compares survival rates between two highly specific and non-overlapping groups
+-- using CASE statements for conditional aggregation.
+
+SELECT
+    -- Define the group based on the user's specific criteria
+    CASE
+        -- Group A: (6.5 < age <= 49.5, pclass=1, sex='female')
+        WHEN T.Age > 6.5 AND T.Age <= 49.5 AND T.Pclass = 1 AND T.Sex = 'female' THEN 'Group A: Mid-Age, 1st Class Women'
+
+        -- Group B: (age <= 6.5 OR age > 49.5, pclass!=1, sex!='female')
+        -- Note: We assume 'AND' between age ranges was a typo and interpret it as 'OR'
+        -- to include both very young and very old passengers outside Pclass 1 and who are male.
+        WHEN (T.Age <= 6.5 OR T.Age > 49.5) AND T.Pclass != 1 AND T.Sex != 'female' THEN 'Group B: Young/Old, Lower Class Men'
+
+        ELSE 'Excluded'
+    END AS Comparison_Group,
+
+    -- Count the survivors (Survived = 1) for the respective group
+    SUM(CASE WHEN T.Survived = 1 THEN 1 ELSE 0 END) AS Survivors,
+
+    -- Count the non-survivors (Survived = 0) for the respective group
+    SUM(CASE WHEN T.Survived = 0 THEN 1 ELSE 0 END) AS Non_Survivors,
+
+    -- Total number of people in the group
+    COUNT(*) AS Total_Count
+FROM
+    -- Assuming your table name is 'Titanic'
+    Titanic T
+WHERE
+    -- Filter out rows that are not part of either comparison group, and exclude rows with missing age
+    (
+        (T.Age > 6.5 AND T.Age <= 49.5 AND T.Pclass = 1 AND T.Sex = 'female') OR
+        ((T.Age <= 6.5 OR T.Age > 49.5) AND T.Pclass != 1 AND T.Sex != 'female')
+    ) AND T.Age IS NOT NULL
+GROUP BY
+    Comparison_Group
+HAVING
+    -- Only show the two defined groups in the final result
+    Comparison_Group IN ('Group A: Mid-Age, 1st Class Women', 'Group B: Young/Old, Lower Class Men')
+ORDER BY
+    Comparison_Group;
+
+
+
+
+
+
+
+SELECT
+    -- Define the group based on the user's specific criteria
+    CASE
+        -- Group A: (6.5 < age <= 49.5, pclass=1, sex='female')
+        WHEN T.Age > 25.5 AND T.Pclass = 1 AND T.Sex = 'female' THEN 'Group A: Mid-Age, 1st Class Women'
+
+        -- Group B: (age <= 6.5 OR age > 49.5, pclass!=1, sex!='female')
+        -- Note: We assume 'AND' between age ranges was a typo and interpret it as 'OR'
+        -- to include both very young and very old passengers outside Pclass 1 and who are male.
+        WHEN T.Age <= 25.5  AND T.Pclass != 1 AND T.Sex != 'female' THEN 'Group B: Young/Old, Lower Class Men'
+
+        ELSE 'Excluded'
+    END AS Comparison_Group,
+    -- Count the survivors (Survived = 1) for the respective group
+    SUM(CASE WHEN T.Survived = 1 THEN 1 ELSE 0 END) AS Survivors,
+
+    -- Count the non-survivors (Survived = 0) for the respective group
+    SUM(CASE WHEN T.Survived = 0 THEN 1 ELSE 0 END) AS Non_Survivors,
+
+    -- Total number of people in the group
+    COUNT(*) AS Total_Count
+    
+
+FROM
+    -- Assuming your table name is 'Titanic'
+    Titanic T
+WHERE
+    -- Filter out rows that are not part of either comparison group, and exclude rows with missing age
+    (
+        (T.Age > 25.5 AND T.Pclass = 1 AND T.Sex = 'female') OR
+        (T.Age <= 25.5  AND T.Pclass != 1 AND T.Sex != 'female')
+    ) AND T.Age IS NOT NULL
+GROUP BY 
+    1
+ORDER BY
+    Comparison_Group;
