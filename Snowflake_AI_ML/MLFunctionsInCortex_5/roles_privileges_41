@@ -1,0 +1,160 @@
+-- Cleanup
+DROP ROLE IF EXISTS
+    analyst;
+
+DROP ROLE IF EXISTS
+    consumer;
+
+DROP SNOWFLAKE.ML.CLASSIFICATION IF EXISTS
+    classifier;
+
+-- Show instances/roles/privileges in specific class
+SHOW SNOWFLAKE.ML.CLASSIFICATION;
+
+SHOW ROLES IN CLASS
+    SNOWFLAKE.ML.CLASSIFICATION;  -- MLADMIN and MLCONSUMER builtin roles
+
+-- recommended custom analyst role to create/own/train model in specific schema
+USE ROLE 
+    accountadmin;
+CREATE ROLE     
+    analyst;
+GRANT ROLE analyst to role
+    sysadmin;
+
+-- Custom analyst role can create+train classification models in specific schema
+GRANT 
+    USAGE ON DATABASE
+        test 
+TO ROLE
+    analyst;
+
+GRANT 
+    USAGE ON SCHEMA 
+        test.public 
+TO ROLE 
+    analyst;
+
+GRANT 
+    SELECT ON TABLE 
+        purchases 
+TO ROLE 
+    analyst;
+
+GRANT 
+    USAGE ON WAREHOUSE 
+        compute_wh 
+TO ROLE 
+    analyst;
+
+GRANT 
+    CREATE 
+        SNOWFLAKE.ML.CLASSIFICATION 
+ON SCHEMA
+    test.public
+TO ROLE
+    analyst;
+
+SHOW 
+    GRANTS TO ROLE
+        analyst;  -- Both MLAdmin and MLConsumer will be there
+
+USE ROLE 
+    ANALYST;
+
+CREATE OR REPLACE 
+    SNOWFLAKE.ML.CLASSIFICATION classifier (
+            input_data => system$query_reference(
+                ' 
+                    SELECT 
+                        interest,
+                        rating,
+                        label
+                    FROM 
+                        purchases
+                    WHERE 
+                        label
+                    IS NOT NULL
+                '
+            ),
+            target_colname => 'label'
+    );
+
+CALL 
+    classifier!show_evaluation_metrics();
+
+SHOW ROLES IN  SNOWFLAKE.ML.CLASSIFICATION classifier;  -- MLADMIN, MLCONSUMER
+
+-- recommmended custom consumer role to only forecast with existing models in specific schema
+
+USE ROLE 
+    accountadmin;
+CREATE OR REPLACE ROLE 
+    consumer;
+GRANT ROLE 
+    consumer to role
+        sysadmin;
+
+GRANT 
+    USAGE ON DATABASE
+        test 
+TO ROLE
+    consumer;
+
+GRANT 
+    USAGE ON SCHEMA 
+        test.public 
+TO ROLE 
+    consumer;
+
+GRANT 
+    SELECT ON TABLE 
+        purchases 
+TO ROLE 
+    consumer;
+
+GRANT 
+    USAGE ON WAREHOUSE 
+        compute_wh 
+TO ROLE 
+    consumer;
+
+GRANT 
+    SNOWFLAKE.ML.CLASSIFICATION 
+ROLE
+    classifier!MLCONSUMER
+TO ROLE
+    consumer;
+
+SHOW 
+    GRANTS TO ROLE
+        consumer;  -- Only MLConsumer will be there
+
+USE ROLE 
+    consumer;
+
+SELECT 
+    interest,
+    rating,
+    classifier!PREDICT(
+        input_data => object_construct(*)) AS preds
+FROM 
+    purchases
+WHERE
+    label IS NULL;
+
+CALL 
+    classifier!show_evaluation_metrics();  -- will get privilege error
+
+USE ROLE 
+    ACCOUNTADMIN;
+
+SHOW GRANTS TO 
+    snowflake.ml.classification
+ROLE
+    classifier!mladmin;
+
+SHOW GRANTS TO 
+    snowflake.ml.classification
+ROLE
+    classifier!mlconsumer;
