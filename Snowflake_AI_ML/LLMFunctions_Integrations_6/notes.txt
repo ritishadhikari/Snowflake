@@ -1,0 +1,6 @@
+Offerings includes:
+    - Complete
+    - Extract_Answer
+    - Sentiment
+    - Summarize
+    - Translate
