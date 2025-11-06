@@ -4,3 +4,5 @@ Offerings includes:
     - Sentiment
     - Summarize
     - Translate
+
+OPENAI_API_KEY=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
