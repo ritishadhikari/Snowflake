@@ -6,7 +6,7 @@ session=get_active_session()
 if prompt:=st.text_input(
     label='Ask a question and click enter:',
     value='What is Snowflake Data Cloud'
-    )
+    ):
     prompt=prompt.replace("'","''")
     query=f"select test.db.public.openai('{prompt}')"
     response=session.sql(query).collect()[0][0]
