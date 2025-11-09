@@ -8,23 +8,23 @@ USE SCHEMA
     test.public;
 
 -- Create a Procedure
-CREATE OR REPLACE PROCEDURE
-    proc1(num float)
-RETURNS
-    string
-LANGUAGE
-    python
-RUNTIME_VERSION='3.9'
-PACKAGES=(
-        'snowflake-snowpark-python==1.13.0'
-    )
-HANDLER='proc1'
-AS $$
-import snowflake.snowpark as snowpark
-def proc1(session:snowpark.Session, num:float):
-    query=f"SELECT '+' || to_char({num})"
-    return session.sql(query).collect()[0][0]
-$$;
+    CREATE OR REPLACE PROCEDURE
+        proc1(num float)
+    RETURNS
+        string
+    LANGUAGE
+        python
+    RUNTIME_VERSION='3.9'
+    PACKAGES=(
+            'snowflake-snowpark-python==1.13.0'
+        )
+    HANDLER='proc1'
+    AS $$
+    import snowflake.snowpark as snowpark
+    def proc1(session:snowpark.Session, num:float):
+        query=f"SELECT '+' || to_char({num})"
+        return session.sql(query).collect()[0][0]
+    $$;
 
 CALL proc1(22.5);
 
