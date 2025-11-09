@@ -15,7 +15,7 @@ def getSession():
     session = get_active_session()
     url="snowflake://ritishadhikari:Eklavya@05072024@DLCTVSW-DW86981/test/public?warehouse=compute_wh&role=accountadmin"
     db=SQLDatabase.from_uri(url)
-    openai_key='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'
+    openai_key=''
     llm=OpenAI(openai_api_key=openai_key)
     chain=create_sql_query_chain(llm, db)
     return session, db, chain
