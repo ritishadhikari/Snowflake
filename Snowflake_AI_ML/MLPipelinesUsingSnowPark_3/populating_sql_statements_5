@@ -47,13 +47,6 @@ INSERT INTO test.ts.sales_ts VALUES
   -- test data store 2 (date >= 2020-01-15)
   (2, 'umbrella', to_timestamp_ntz('2020-01-15'), 3.0, false, 52, 0.3, null),
   (2, 'umbrella', to_timestamp_ntz('2020-01-16'), 70.0, false, 53, 0.3, null);
-
-SELECT
-    *
-FROM
-    test.ts.sales_ts;
-
-
     
 
 CREATE OR REPLACE TABLE 
