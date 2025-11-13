@@ -9,12 +9,13 @@ FROM
 LIMIT 
     10;
 
-WITH source AS (
-    SELECT 
-        *
-    FROM 
-        marketing
-    ),
+WITH 
+    source AS (
+        SELECT 
+            *
+        FROM 
+            marketing
+        ),
     input AS (
         SELECT
             {
@@ -34,7 +35,8 @@ WITH source AS (
     analysis AS (
         SELECT 
             res.*
-        FROM input,
+        FROM 
+            input,
             TABLE(SNOWFLAKE.ML.TOP_INSIGHTS(cat_dims, cont_dims, metric, label) OVER (PARTITION BY 0)) AS res
     )
     
