@@ -111,3 +111,4 @@ websocket-client==1.8.0
 wheel==0.45.1
 langchain==1.0.5
 langchain-community==0.4.1
+langchain-snowflake
