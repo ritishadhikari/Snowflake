@@ -8,11 +8,11 @@ CREATE OR REPLACE SCHEMA
 -- Creating external stages
 CREATE OR REPLACE STAGE 
     MANAGE_DB.external_stages.aws_stage
-    url='s3://bucketsnowflakes3'
-    credentials=(
+URL='s3://bucketsnowflakes3'
+CREDENTIALS=(
         aws_key_id='ABCD_DUMMY_ID',
         aws_secret_key='1234abcd_key'
-        );
+    );
         
 -- Description of external stage
 DESC STAGE 
@@ -54,13 +54,16 @@ FROM
 --  Copy command with specified file(s)
 COPY INTO
     OUR_FIRST_DB.PUBLIC.ORDERS
-FROM @MANAGE_DB.external_stages.aws_stage
+FROM 
+    @MANAGE_DB.external_stages.aws_stage
 FILE_FORMAT=(
     type='csv',
     field_delimiter=',',
     skip_header=1
-),
-FILES=('OrderDetails.csv');
+    ),
+FILES=(
+    'OrderDetails.csv'
+    );
 
 --  There will be data now
 SELECT 
@@ -74,10 +77,10 @@ COPY INTO
     OUR_FIRST_DB.PUBLIC.ORDERS
 FROM 
     @MANAGE_DB.external_stages.aws_stage
-    file_format=(
+FILE_FORMAT=(
         type='csv',
         field_delimiter=',',
         skip_header=1
     ),
-    pattern='.*Order.*'
+PATTERN='.*Order.*'
 

@@ -13,3 +13,8 @@ Considerations:
     - Ownership privileges are needed for an object to be restored
 
 
+Things to keep in mind:
+    - Copying data from external sources to the table
+    - Ensure File Formats are defined and are used to transfer data into/from tables from/into stages
+
+

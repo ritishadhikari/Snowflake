@@ -13,7 +13,7 @@ Editions in Snowflake:
         - Network Policies
         - Secure Data Share
         - Federated Authentication & SSO
-        - Premiere Support 24/7 1
+        - Premiere Support 24/7
     - Enterprise:
         - Additional Features for the needs of large-scale enterprises
         - Multi cluster warehouse

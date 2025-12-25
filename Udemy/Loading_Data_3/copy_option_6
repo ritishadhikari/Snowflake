@@ -1,6 +1,6 @@
 CREATE OR REPLACE STAGE 
     MANAGE_DB.external_stages.aws_stage_errorex
-    url='s3://bucketsnowflakes4';
+URL='s3://bucketsnowflakes4';
 
 LIST @MANAGE_DB.external_stages.aws_stage_errorex;
 
@@ -22,13 +22,14 @@ FROM
 -- Demonstrating Error Message
 COPY INTO 
     our_first_db.public.orders_ex
-    FROM @MANAGE_DB.external_stages.aws_stage_errorex
-    file_format=(
+FROM 
+    @MANAGE_DB.external_stages.aws_stage_errorex
+FILE_FORMAT=(
         type='csv',
         field_delimiter=',',
         skip_header=1
     )
-    files=('OrderDetails_error.csv');
+FILES=('OrderDetails_error.csv');
 
 -- Validating Table is empty
 SELECT
@@ -37,16 +38,21 @@ FROM
     our_first_db.public.orders_ex;
 
 --  Error handling using the on-error option
+-- With ON_ERROR='Continue', If an error occurs while processing a file, Snowflake skips only the problematic rows and continues loading the rest of the rows from the file.
 COPY INTO 
     our_first_db.public.orders_ex
-    FROM @MANAGE_DB.external_stages.aws_stage_errorex
-    FILE_FORMAT=(
-        type='csv',
-        field_delimiter=',',
-        skip_header=1
+FROM 
+    @MANAGE_DB.external_stages.aws_stage_errorex
+FILE_FORMAT=(
+    type='csv',
+    field_delimiter=',',
+    skip_header=1
     )
-    FILES=('OrderDetails_error.csv','OrderDetails_error2.csv')
-    ON_ERROR='Continue';  -- default is 'Abort_Statement'
+FILES=(
+    'OrderDetails_error.csv',
+    'OrderDetails_error2.csv'
+    )
+ON_ERROR='Continue';  -- default is 'Abort_Statement'
 
 -- Validating Table is parsed with eligible rows
 SELECT
@@ -61,39 +67,48 @@ TRUNCATE TABLE
 
 COPY INTO 
     our_first_db.public.orders_ex
-    FROM @MANAGE_DB.external_stages.aws_stage_errorex
-    FILE_FORMAT=(
-        type='csv',
-        field_delimiter=',',
-        skip_header=1
-    )
-    FILES=('OrderDetails_error.csv','OrderDetails_error2.csv')
-    ON_ERROR='Skip_file'; 
+FROM 
+    @MANAGE_DB.external_stages.aws_stage_errorex
+FILE_FORMAT=(
+    type='csv',
+    field_delimiter=',',
+    skip_header=1
+)
+FILES=(
+    'OrderDetails_error.csv',
+    'OrderDetails_error2.csv')
+ON_ERROR='Skip_file'; 
 
 TRUNCATE TABLE
     our_first_db.public.orders_ex; 
 
 COPY INTO 
     our_first_db.public.orders_ex
-    FROM @MANAGE_DB.external_stages.aws_stage_errorex
-    FILE_FORMAT=(
+FROM @MANAGE_DB.external_stages.aws_stage_errorex
+FILE_FORMAT=(
         type='csv',
         field_delimiter=',',
         skip_header=1
     )
-    FILES=('OrderDetails_error.csv','OrderDetails_error2.csv')
-    ON_ERROR='Skip_File_3'; -- Skip the files if there are errors in 3 or more files, else continue to partially load the files having errors
+FILES=(
+    'OrderDetails_error.csv',
+    'OrderDetails_error2.csv'
+    )
+ON_ERROR='Skip_File_3'; -- Skip the files if there are errors in 3 or more files, else continue to partially load the files having errors
 
 TRUNCATE TABLE
     our_first_db.public.orders_ex; 
 
 COPY INTO 
     our_first_db.public.orders_ex
-    FROM @MANAGE_DB.external_stages.aws_stage_errorex
-    FILE_FORMAT=(
+FROM @MANAGE_DB.external_stages.aws_stage_errorex
+FILE_FORMAT=(
         type='csv',
         field_delimiter=',',
         skip_header=1
     )
-    FILES=('OrderDetails_error.csv','OrderDetails_error2.csv')
-    ON_ERROR='Skip_File_3%'; -- Skip the files if there are errors in more than 3% of the records in the files, else continue to partially load the files having errors
+FILES=(
+    'OrderDetails_error.csv',
+    'OrderDetails_error2.csv'
+)
+ON_ERROR='Skip_File_3%'; -- Skip the files if there are errors in more than 3% of the records in the files, else continue to partially load the files having errors

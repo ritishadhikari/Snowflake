@@ -32,8 +32,12 @@ COPY INTO
     our_first_db.public.orders_ex
 FROM 
     @MANAGE_DB.external_stages.aws_stage_errorex
-FILE_FORMAT=(format_name=manage_db.file_formats.my_file_format)
-FILES=('OrderDetails_error.csv')
+FILE_FORMAT=(
+    format_name=manage_db.file_formats.my_file_format
+    )
+FILES=(
+    'OrderDetails_error.csv'
+    )
 ON_ERROR='SKIP_FILE_3';
 
 SELECT 
@@ -59,8 +63,12 @@ COPY INTO
     our_first_db.public.orders_ex
 FROM 
     @MANAGE_DB.external_stages.aws_stage_errorex
-FILE_FORMAT=(format_name=manage_db.file_formats.my_file_format)
-FILES=('OrderDetails_error.csv')
+FILE_FORMAT=(
+    format_name=manage_db.file_formats.my_file_format
+    )
+FILES=(
+    'OrderDetails_error.csv'
+    )
 ON_ERROR='SKIP_FILE_3'
 
 -- Altering file format is not possible in Snowflake so we would need to create and replace
@@ -78,8 +86,12 @@ COPY INTO
     our_first_db.public.orders_ex
 FROM 
     @MANAGE_DB.external_stages.aws_stage_errorex
-FILE_FORMAT=(format_name=manage_db.file_formats.my_file_format)
-FILES=('OrderDetails_error.csv')
+FILE_FORMAT=(
+    format_name=manage_db.file_formats.my_file_format
+    )
+FILES=(
+    'OrderDetails_error.csv'
+    )
 ON_ERROR='Continue';
 
 -- It will load 1501 rows since it will take the header
@@ -101,5 +113,7 @@ FILE_FORMAT=(
     field_delimiter=',',
     skip_header=1
     )
-FILES=('OrderDetails_error.csv')
+FILES=(
+    'OrderDetails_error.csv'
+    )
 ON_ERROR='Continue';
