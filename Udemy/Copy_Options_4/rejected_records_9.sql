@@ -14,7 +14,8 @@ CREATE OR REPLACE TABLE
         FROM
             TABLE(result_scan(last_query_id()));
 
-LIST @COPY_DB.PUBLIC.aws_stage_copy;
+LIST 
+    @COPY_DB.PUBLIC.aws_stage_copy;
 
 SELECT
     *

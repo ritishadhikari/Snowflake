@@ -17,9 +17,10 @@ CREATE OR REPLACE TABLE
 -- Prepare stage object
 CREATE OR REPLACE STAGE 
     copy_db.public.aws_stage_copy
-url='s3://snowflakebucket-copyoption/size/';
+URL='s3://snowflakebucket-copyoption/size/';
 
-LIST @copy_db.public.aws_stage_copy;
+LIST 
+    @copy_db.public.aws_stage_copy;
 
 -- Load data using copy command for the first time. Loads properly.
 COPY INTO 

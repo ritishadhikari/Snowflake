@@ -1,3 +1,4 @@
+-- VVI
 USE DATABASE 
     copy_db;
 
@@ -14,7 +15,7 @@ CREATE OR REPLACE TABLE
 -- Prepare stage object
 CREATE OR REPLACE STAGE 
     copy_db.public.aws_stage_copy
-url='s3://snowflakebucket-copyoption/size/';
+URL='s3://snowflakebucket-copyoption/size/';
 
 -- List files in stage
 LIST 
@@ -31,7 +32,6 @@ FILE_FORMAT=(
     skip_header=1
     )
 PATTERN='.*Order.*'
-
 SIZE_LIMIT=20000;  -- Only the first file will get loaded even if the first file exceeds 20000 rows
 
 SELECT

@@ -14,7 +14,7 @@ CREATE OR REPLACE TABLE
 -- Prepare stage object
 CREATE OR REPLACE STAGE 
     copy_db.public.aws_stage_copy
-url='s3://snowflakebucket-copyoption/returnfailed/';
+URL='s3://snowflakebucket-copyoption/returnfailed/';
 
 -- List files in stage
 LIST 

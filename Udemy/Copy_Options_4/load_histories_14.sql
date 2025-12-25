@@ -1,3 +1,4 @@
+# VVI
 -- Enables you to retrieve the history of data loaded into tables using the COPY INTO <table> command
 
 USE database copy_db;

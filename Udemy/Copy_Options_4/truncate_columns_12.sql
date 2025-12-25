@@ -14,7 +14,7 @@ CREATE OR REPLACE TABLE
 -- Prepare stage object
 CREATE OR REPLACE STAGE 
     copy_db.public.aws_stage_copy
-url='s3://snowflakebucket-copyoption/size/';
+URL='s3://snowflakebucket-copyoption/size/';
 
 LIST @copy_db.public.aws_stage_copy;
 
@@ -47,7 +47,7 @@ FILE_FORMAT=(
     skip_header=1
 )
 PATTERN='.*Orders.*'
-TRUNCATECOLUMNS=true;
+TRUNCATECOLUMNS=TRUE;
 
 SELECT 
     *
