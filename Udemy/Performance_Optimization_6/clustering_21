@@ -17,13 +17,16 @@ CREATE OR REPLACE TABLE
 
 COPY INTO
     our_first_db.public.orders
-FROM @manage_db.external_stages.aws_stage
+FROM 
+    @manage_db.external_stages.aws_stage
 FILE_FORMAT=(
     type='csv',
     field_delimiter=',',
     skip_header=1
-),
-FILES=('OrderDetails.csv');
+    ),
+FILES=(
+    'OrderDetails.csv'
+    );
 
 SELECT 
     *

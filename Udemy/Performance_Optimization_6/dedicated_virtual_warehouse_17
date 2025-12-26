@@ -112,3 +112,5 @@ GRANT ROLE
     dba
 TO USER 
     dba2;
+
+-- Bottomline is you create Warehouses and Create roles and then Create Users. You then grant usage of those warehouses to those roles and eventually grant roles to those Users. Thereby the users are granted access to the warehouses.
