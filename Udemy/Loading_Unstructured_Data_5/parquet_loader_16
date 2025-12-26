@@ -61,4 +61,3 @@ FROM
     our_first_db.public.parquet_date
 LIMIT
     10;
-

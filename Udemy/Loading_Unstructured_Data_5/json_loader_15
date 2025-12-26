@@ -22,9 +22,10 @@ FROM
     @manage_db.external_stages.jsonstage 
 FILE_FORMAT=(
     format_name=manage_db.file_formats.jsonformat
-)
-FILES=  ('HR_data.json');
-
+    )
+FILES=  (
+    'HR_data.json'
+    );
 
 SELECT
     *
@@ -101,12 +102,12 @@ FROM
 -- Create Table Option 1
 CREATE OR REPLACE TABLE 
     our_first_db.public.language AS 
-    SELECT 
-        CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
-        f.value:language::STRING AS language_spoken,
-        f.value:level::STRING AS language_level,
-    FROM 
-        our_first_db.public.json_raw, TABLE(FLATTEN(raw_file:spoken_languages)) AS f;
+        SELECT 
+            CONCAT(raw_file:first_name::String,' ',raw_file:last_name::String ) AS full_name,
+            f.value:language::STRING AS language_spoken,
+            f.value:level::STRING AS language_level,
+        FROM 
+            our_first_db.public.json_raw, TABLE(FLATTEN(raw_file:spoken_languages)) AS f;
 
 SELECT 
     *
