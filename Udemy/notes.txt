@@ -19,4 +19,7 @@ Things to keep in mind:
     - Use On_Error, SIZE_LIMIT, TRUNCATE keywords judiciously while working copying into the tables
     - Put Proper Clustering Logic on Columns while working with Tables 
     - Validation of Snowpipe still working and check a Pipe is paused or is running
+    - Undrop Tables
+    - Set Retention Time for tables while creation
+    - Get Table specific Data Used and Resource usage details (refer 39_time_table_cost)
 

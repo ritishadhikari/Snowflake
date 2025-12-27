@@ -13,7 +13,9 @@ COPY INTO
     our_first_db.public.test
 FROM    
     @manage_db.external_stages.time_travel_stage
-FILES=('customers.csv');
+FILES=(
+    'customers.csv'
+    );
 
 SELECT 
     *
@@ -90,7 +92,9 @@ COPY INTO
     our_first_db.public.test
 FROM    
     @manage_db.external_stages.time_travel_stage
-FILES=('customers.csv');
+FILES=(
+    'customers.csv'
+    );
 
 -- First Mistake
 -- query id: 01bed31d-3201-e9ec-000f-66b20003dd56

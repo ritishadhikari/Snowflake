@@ -74,7 +74,9 @@ COPY INTO
     our_first_db.public.test
 FROM    
     @manage_db.external_stages.time_travel_stage
-FILES=('customers.csv');
+FILES=(
+    'customers.csv'
+);
 
 SELECT 
     *
@@ -103,7 +105,7 @@ BEFORE
     )
 LIMIT 10;
 
--- Using time travel: Method 2 - before query id
+-- Using time travel: Method 3 - before query id
 TRUNCATE TABLE
     our_first_db.public.test;
 
@@ -137,4 +139,6 @@ SELECT
 FROM 
     our_first_db.public.test
 BEFORE
-    (STATEMENT => '01bed215-3201-e9e0-000f-66b20003c2c6');
+    (
+        STATEMENT => '01bed215-3201-e9e0-000f-66b20003c2c6'
+    );

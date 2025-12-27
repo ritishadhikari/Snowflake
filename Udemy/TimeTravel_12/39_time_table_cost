@@ -24,4 +24,3 @@ FROM
 ORDER BY
     storage_used_gb DESC,
     time_travel_storage_used_gb DESC;
-    
