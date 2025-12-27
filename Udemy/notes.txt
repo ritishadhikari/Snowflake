@@ -18,5 +18,5 @@ Things to keep in mind:
     - Ensure File Formats are defined and are used to transfer data into/from tables from/into stages
     - Use On_Error, SIZE_LIMIT, TRUNCATE keywords judiciously while working copying into the tables
     - Put Proper Clustering Logic on Columns while working with Tables 
-
+    - Validation of Snowpipe still working and check a Pipe is paused or is running
 

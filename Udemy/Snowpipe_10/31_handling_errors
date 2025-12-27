@@ -35,6 +35,7 @@ FROM
         )
     );
 
+--  Gives the history of copy information on a table
 SELECT
     *
 FROM
