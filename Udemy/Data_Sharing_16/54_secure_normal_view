@@ -34,7 +34,9 @@ COPY INTO
     customer_db.public.customers
 FROM 
     @manage_db.external_stages.time_travel_stage
-FILES=('customers.csv');
+FILES=(
+    'customers.csv'
+    );
 
 SELECT 
     *

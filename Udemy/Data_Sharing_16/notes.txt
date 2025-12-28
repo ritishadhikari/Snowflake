@@ -1,5 +1,4 @@
-Data sharing is a metadata operations and we use the cloud layer for referencing the data without 
-copying the Data
+Data sharing is a metadata operations and we use the cloud layer for referencing the data without copying the Data
 
 What can be shared:
     - Tables
