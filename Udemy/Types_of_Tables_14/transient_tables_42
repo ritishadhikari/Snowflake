@@ -2,7 +2,9 @@ COPY INTO
     our_first_db.public.customers
 FROM    
     @manage_db.external_stages.time_travel_stage
-FILES=('customers.csv');
+FILES=(
+    'customers.csv'
+);
 
 CREATE OR REPLACE DATABASE
     tdb;
