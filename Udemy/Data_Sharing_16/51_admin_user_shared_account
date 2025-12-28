@@ -102,7 +102,6 @@ SELECT
 FROM 
     our_view_db.public.secure_customer_view;
 
-
 -- Part for View Share from multiple databases
 SHOW SHARES;
 
