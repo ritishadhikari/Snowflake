@@ -12,7 +12,7 @@ SELECT
     *
 FROM 
     TABLE(
-        information.shema.task_history(
+        information.schema.task_history(
             scheduled_time_range_start=>dateadd('hour',-4,current_timestamp()),
             result_limit=>5,
             task_name='customer_insert_2'
