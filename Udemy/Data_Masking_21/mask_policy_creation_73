@@ -1,8 +1,8 @@
 USE DATABASE
     manage_db;
 
-    CREATE OR REPLACE SCHEMA
-    masking_sch;
+CREATE OR REPLACE SCHEMA
+masking_sch;
 
 USE ROLE 
     accountadmin;
