@@ -72,9 +72,9 @@ SELECT
     st.location,
     st.employees
 FROM 
-    sales_raw_staging SA
+    sales_raw_staging sa
 JOIN 
-    store_table ST
+    store_table st
 ON 
     st.store_id=sa.store_id;
 
@@ -192,16 +192,16 @@ SELECT
     st.location,
     st.employees
 FROM 
-    sales_stream SA
+    sales_stream sa
 JOIN 
-    store_table ST
+    store_table st
 ON 
     st.store_id=sa.store_id;
 
 SELECT 
     *
 FROM 
-     streams_db.public.sales_final_table;
+    streams_db.public.sales_final_table;
 
 SELECT
     *

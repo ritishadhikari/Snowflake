@@ -87,7 +87,6 @@ SHOW STREAMS;
 DESCRIBE STREAM 
     sales_stream;
 
-
 SELECT
     *
 FROM 

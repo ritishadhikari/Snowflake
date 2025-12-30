@@ -24,5 +24,5 @@ Things to keep in mind:
     - Get Table specific Data Used and Resource usage details (refer 39_time_table_cost)
     - Make sample of the table for analysis and test it as a proof of concept
     - See details about specific tasks (how many times it got trigerred) (refer task_history_error_handling_61)
-    - 
+    - See if stream has data or is empty (refer combine_stream_tasks_70)
 
