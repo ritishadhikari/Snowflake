@@ -5,7 +5,7 @@ Snowflake Cortex:
         - Snowpark ML Data Access (+Framework Connectors)
     - ML-Powered Functions
         - Time series Forecasting
-        - Anamoly Detection
+        - Anomaly Detection
         - Contribution Explorer
         - Classification
     - LLM Functions

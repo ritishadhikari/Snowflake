@@ -68,5 +68,3 @@ SELECT
     *
 FROM 
     TABLE(proc3('abc'));
-    
-
