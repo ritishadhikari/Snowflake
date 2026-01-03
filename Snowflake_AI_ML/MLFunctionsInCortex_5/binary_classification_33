@@ -1,3 +1,5 @@
+
+
 CREATE OR REPLACE TABLE 
     test.public.purchases AS (
         SELECT

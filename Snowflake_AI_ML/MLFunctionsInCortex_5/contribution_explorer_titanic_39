@@ -48,12 +48,6 @@ HAVING
 ORDER BY
     Comparison_Group;
 
-
-
-
-
-
-
 SELECT
     -- Define the group based on the user's specific criteria
     CASE
